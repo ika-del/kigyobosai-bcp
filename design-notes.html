@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>図解ツール 設計の工夫ポイント</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d14;
+  --surface: #13161f;
+  --surface2: #1c2030;
+  --border: #2a2f47;
+  --text: #e4e8f5;
+  --muted: #7a84a8;
+  --accent: #6366f1;
+  --c1: #ff4d6d; --c1bg: #2a0f18;
+  --c2: #ff8c42; --c2bg: #2a1a0a;
+  --c3: #f5c842; --c3bg: #2a240a;
+  --c4: #4db8ff; --c4bg: #0a1f2a;
+  --c5: #3ddc97; --c5bg: #0a2a1c;
+  --c6: #a78bfa; --c6bg: #1a1430;
+  --c7: #f0b429; --c7bg: #2a1f08;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: linear-gradient(160deg, #13161f 0%, #0b0d14 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 56px 40px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(77,184,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-kicker {
+  display: inline-block;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  color: var(--accent);
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.3);
+  padding: 4px 14px; border-radius: 20px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 900;
+  line-height: 1.25;
+  background: linear-gradient(120deg, #fff 20%, var(--accent) 60%, var(--c4) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: 15px; color: var(--muted); max-width: 560px; margin: 0 auto 32px;
+}
+.hero-meta {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.hero-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 20px;
+}
+
+/* ===== OVERVIEW FLOW ===== */
+.overview {
+  max-width: 960px; margin: 56px auto 0; padding: 0 40px;
+}
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  color: var(--muted); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+}
+.section-label::before, .section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* 3ステップフロー */
+.flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 56px;
+}
+.flow-arrow {
+  color: var(--border);
+  font-size: 22px;
+  text-align: center;
+  padding: 0 8px;
+}
+.flow-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+.flow-step-num {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--accent); margin-bottom: 8px;
+}
+.flow-step-icon { font-size: 28px; margin-bottom: 8px; }
+.flow-step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.flow-step-desc { font-size: 11px; color: var(--muted); }
+
+/* ===== MAIN POINTS GRID ===== */
+.main-content {
+  max-width: 960px; margin: 0 auto; padding: 0 40px 80px;
+}
+.points-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ポイントカード */
+.point-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  position: relative;
+}
+.point-card:hover { transform: translateY(-2px); }
+.point-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.point-card.p1::before { background: linear-gradient(90deg, var(--c1), var(--c2)); }
+.point-card.p2::before { background: linear-gradient(90deg, var(--c3), var(--c2)); }
+.point-card.p3::before { background: linear-gradient(90deg, var(--c4), var(--c5)); }
+.point-card.p4::before { background: linear-gradient(90deg, var(--c5), var(--c4)); }
+.point-card.p5::before { background: linear-gradient(90deg, var(--c6), var(--accent)); }
+.point-card.p6::before { background: linear-gradient(90deg, var(--c7), var(--c3)); }
+.point-card.p7::before { background: linear-gradient(90deg, var(--accent), var(--c4)); }
+.point-card:hover.p1 { border-color: var(--c1); }
+.point-card:hover.p2 { border-color: var(--c3); }
+.point-card:hover.p3 { border-color: var(--c4); }
+.point-card:hover.p4 { border-color: var(--c5); }
+.point-card:hover.p5 { border-color: var(--c6); }
+.point-card:hover.p6 { border-color: var(--c7); }
+.point-card:hover.p7 { border-color: var(--accent); }
+
+.point-card.wide { grid-column: span 2; }
+
+.point-header {
+  padding: 20px 22px 0;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.point-icon-wrap {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.ic1 { background: var(--c1bg); }
+.ic2 { background: var(--c2bg); }
+.ic3 { background: var(--c4bg); }
+.ic4 { background: var(--c5bg); }
+.ic5 { background: var(--c6bg); }
+.ic6 { background: var(--c7bg); }
+.ic7 { background: rgba(99,102,241,0.15); }
+
+.point-meta { flex: 1; padding-top: 2px; }
+.point-num { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px; }
+.point-title { font-size: 16px; font-weight: 800; line-height: 1.3; }
+
+.point-body { padding: 14px 22px 20px; }
+.point-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+
+/* Before/After コンテナ */
+.ba-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ba-box {
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ba-before {
+  background: rgba(255,77,109,0.08);
+  border: 1px solid rgba(255,77,109,0.2);
+}
+.ba-after {
+  background: rgba(61,220,151,0.08);
+  border: 1px solid rgba(61,220,151,0.2);
+}
+.ba-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  margin-bottom: 5px; text-transform: uppercase;
+}
+.ba-before .ba-label { color: var(--c1); }
+.ba-after .ba-label { color: var(--c5); }
+.ba-text { font-size: 11px; line-height: 1.6; }
+.ba-before .ba-text { color: #ff8a9e; }
+.ba-after .ba-text { color: #7ee8c0; }
+
+/* タグリスト */
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.ftag {
+  font-size: 10px; font-weight: 700; padding: 3px 9px;
+  border-radius: 5px;
+}
+.ft-red { background: var(--c1bg); color: var(--c1); border: 1px solid rgba(255,77,109,0.3); }
+.ft-orange { background: var(--c2bg); color: var(--c2); border: 1px solid rgba(255,140,66,0.3); }
+.ft-yellow { background: var(--c3bg); color: var(--c3); border: 1px solid rgba(245,200,66,0.3); }
+.ft-blue { background: var(--c4bg); color: var(--c4); border: 1px solid rgba(77,184,255,0.3); }
+.ft-green { background: var(--c5bg); color: var(--c5); border: 1px solid rgba(61,220,151,0.3); }
+.ft-purple { background: var(--c6bg); color: var(--c6); border: 1px solid rgba(167,139,250,0.3); }
+.ft-gold { background: var(--c7bg); color: var(--c7); border: 1px solid rgba(240,180,41,0.3); }
+
+/* ビュー切替デモ */
+.view-demo {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.vd-card {
+  flex: 1; border-radius: 8px; padding: 10px 12px;
+}
+.vd-exec { background: var(--c7bg); border: 1px solid rgba(240,180,41,0.3); }
+.vd-soumu { background: var(--c4bg); border: 1px solid rgba(77,184,255,0.3); }
+.vd-label { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 5px; }
+.vd-exec .vd-label { color: var(--c7); }
+.vd-soumu .vd-label { color: var(--c4); }
+.vd-item { font-size: 10px; color: var(--muted); padding: 2px 0; border-bottom: 1px solid var(--border); }
+.vd-item:last-child { border-bottom: none; }
+.vd-item.highlight-exec { color: var(--c7); }
+.vd-item.highlight-soumu { color: var(--c4); }
+
+/* インタラクション図 */
+.interact-flow {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 10px; flex-wrap: wrap;
+}
+.if-step {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  text-align: center;
+  flex: 1; min-width: 80px;
+}
+.if-arrow { color: var(--muted); font-size: 14px; flex-shrink: 0; }
+
+/* 情報2層図 */
+.layer-diagram {
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.layer-row {
+  display: flex; align-items: center; gap: 0;
+}
+.layer-role {
+  padding: 10px 12px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  white-space: nowrap; width: 80px; flex-shrink: 0;
+  text-align: center;
+}
+.layer-exec-role { background: var(--c7bg); color: var(--c7); border-right: 1px solid var(--border); }
+.layer-soumu-role { background: var(--c4bg); color: var(--c4); border-right: 1px solid var(--border); border-top: 1px solid var(--border); }
+.layer-content {
+  padding: 10px 14px;
+  font-size: 11px; flex: 1;
+}
+.layer-exec-content { background: rgba(240,180,41,0.05); color: var(--c7); }
+.layer-soumu-content { background: rgba(77,184,255,0.05); color: var(--c4); border-top: 1px solid var(--border); }
+
+/* フェーズ進捗ミニ */
+.mini-phases {
+  display: flex; gap: 4px; margin-top: 10px; align-items: stretch;
+}
+.mini-phase {
+  flex: 1; border-radius: 6px; padding: 8px 6px; text-align: center; font-size: 9px; font-weight: 700;
+}
+.mp1 { background: var(--c1bg); color: var(--c1); }
+.mp2 { background: var(--c2bg); color: var(--c2); }
+.mp3 { background: var(--c3bg); color: var(--c3); }
+.mp4 { background: var(--c4bg); color: var(--c4); }
+.mp5 { background: var(--c5bg); color: var(--c5); }
+.mp6 { background: var(--c6bg); color: var(--c6); }
+
+/* コスト根拠ミニ */
+.evidence-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px;
+}
+.ev-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 10px;
+}
+.ev-num { font-size: 18px; font-weight: 900; }
+.ev-label { font-size: 10px; color: var(--muted); }
+
+/* モバイル対応ミニ */
+.device-row {
+  display: flex; gap: 10px; margin-top: 10px; align-items: flex-end;
+}
+.device-pc {
+  flex: 3; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 8px; padding: 10px; height: 80px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+}
+.device-sp {
+  flex: 1; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 6px; padding: 6px; height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 3px;
+}
+.device-label { font-size: 9px; color: var(--muted); }
+.device-bar { height: 3px; background: var(--accent); border-radius: 2px; opacity: 0.5; }
+.device-bar.full { width: 80%; }
+.device-bar.half { width: 55%; }
+
+/* ===== SUMMARY ROW ===== */
+.summary-row {
+  max-width: 960px; margin: 0 auto 80px; padding: 0 40px;
+}
+.summary-card {
+  background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(77,184,255,0.06) 100%);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+}
+.summary-text { flex: 1; min-width: 240px; }
+.summary-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.summary-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.summary-kpis {
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.skpi { text-align: center; }
+.skpi-num { font-size: 28px; font-weight: 900; color: var(--accent); }
+.skpi-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+  .hero { padding: 36px 20px 32px; }
+  .overview, .main-content, .summary-row { padding: 0 16px; }
+  .overview { margin-top: 36px; }
+  .flow { grid-template-columns: 1fr; gap: 8px; }
+  .flow-arrow { transform: rotate(90deg); }
+  .points-grid { grid-template-columns: 1fr; }
+  .point-card.wide { grid-column: span 1; }
+  .ba-wrap { grid-template-columns: 1fr; }
+  .mini-phases { flex-wrap: wrap; }
+  .evidence-grid { grid-template-columns: 1fr 1fr; }
+  .summary-card { flex-direction: column; gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-kicker">Design Notes</div>
+  <h1>この図解ツールを作るうえで<br>工夫した 7 つのポイント</h1>
+  <p class="hero-sub">企業防災ロードマップ｜都市直下型地震対策<br>設計・構成・UXの考え方をまとめた解説図解</p>
+  <div class="hero-meta">
+    <span class="hero-badge">🎯 対象読者：経営層・総務部</span>
+    <span class="hero-badge">📱 PC・スマホ両対応</span>
+    <span class="hero-badge">✅ チェックリスト機能つき</span>
+  </div>
+</div>
+
+<!-- OVERVIEW FLOW -->
+<div class="overview">
+  <div class="section-label">設計の大きな流れ</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-num">STEP 01</div>
+      <div class="flow-step-icon">👥</div>
+      <div class="flow-step-title">読み手を定義する</div>
+      <div class="flow-step-desc">経営層 ／ 総務部<br>2種類の読み手を設定</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">STEP 02</div>
+      <div class="flow-step-icon">🗂️</div>
+      <div class="flow-step-title">情報を構造化する</div>
+      <div class="flow-step-desc">フェーズ × 役割 × 根拠<br>3軸で整理・分類</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">STEP 03</div>
+      <div class="flow-step-icon">⚡</div>
+      <div class="flow-step-title">行動に変える</div>
+      <div class="flow-step-desc">見るだけで終わらない<br>チェック・保存・共有</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN POINTS -->
+<div class="main-content">
+  <div class="section-label">7つの工夫ポイント</div>
+  <div class="points-grid">
+
+    <!-- POINT 1 -->
+    <div class="point-card p1">
+      <div class="point-header">
+        <div class="point-icon-wrap ic1">👥</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 01</div>
+          <div class="point-title">読み手ごとにビューを切り替える</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">「経営層」と「総務部」は同じ図解を見ても必要な情報が違う。ビュー切替で最適な情報だけを前面に出す。</p>
+        <div class="view-demo">
+          <div class="vd-card vd-exec">
+            <div class="vd-label">👔 経営層ビュー</div>
+            <div class="vd-item highlight-exec">📌 廃業率30%・発生確率70%</div>
+            <div class="vd-item highlight-exec">📌 法的責任・損害賠償リスク</div>
+            <div class="vd-item highlight-exec">📌 ★経営承認が必要な判断</div>
+          </div>
+          <div class="vd-card vd-soumu">
+            <div class="vd-label">📋 総務部ビュー</div>
+            <div class="vd-item highlight-soumu">📋 ベンダー名・月額費用目安</div>
+            <div class="vd-item highlight-soumu">📋 作業工数・届出先</div>
+            <div class="vd-item highlight-soumu">📋 法定点検の記録保存方法</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <span class="ftag ft-gold">経営ダッシュボード</span>
+          <span class="ftag ft-blue">実務チェックリスト</span>
+          <span class="ftag ft-green">自動保存</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 2 -->
+    <div class="point-card p2">
+      <div class="point-header">
+        <div class="point-icon-wrap ic2">🗂️</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 02</div>
+          <div class="point-title">フェーズ構造で「やる順序」を可視化</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">「全部大事」では人は動かない。時系列フェーズに分割し「今すぐやること」が一目でわかる構成にした。</p>
+        <div class="mini-phases">
+          <div class="mini-phase mp1">🆘<br>即日<br>人命</div>
+          <div class="mini-phase mp2">🏗️<br>1ヶ月<br>組織</div>
+          <div class="mini-phase mp3">📦<br>3ヶ月<br>備蓄</div>
+          <div class="mini-phase mp4">📡<br>6ヶ月<br>通信</div>
+          <div class="mini-phase mp5">🔄<br>12ヶ月<br>BCP</div>
+          <div class="mini-phase mp6">♾️<br>継続<br>改善</div>
+        </div>
+        <div class="tag-row">
+          <span class="ftag ft-red">緊急度で色分け</span>
+          <span class="ftag ft-orange">6段階ロードマップ</span>
+          <span class="ftag ft-yellow">タイムライン表示</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 3 -->
+    <div class="point-card p3 wide">
+      <div class="point-header">
+        <div class="point-icon-wrap ic3">🔀</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 03</div>
+          <div class="point-title">各対策を「2層の情報構造」で書く</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">1つの対策アイテムに「経営層向けリスク視点」と「総務部向け実務手順」の両方を持たせ、読み手に応じて表示を切り替える。これにより1つの図解が2種類の読み手に対して最大限の価値を提供できる。</p>
+        <div class="layer-diagram">
+          <div class="layer-row">
+            <div class="layer-role layer-exec-role">👔<br>経営層</div>
+            <div class="layer-content layer-exec-content">📌 防火管理者の未選任は消防法違反・30万円以下の罰金。<strong>選任辞令の発令は経営層が行う</strong>必要あり。</div>
+          </div>
+          <div class="layer-row">
+            <div class="layer-role layer-soumu-role">📋<br>総務部</div>
+            <div class="layer-content layer-soumu-content">📋 防火管理者講習（甲種：2日間）を手配→消防署へ届出。受講費用：約5,000〜10,000円。3ヶ月以内に完了。</div>
+          </div>
+        </div>
+        <div class="tag-row" style="margin-top:12px;">
+          <span class="ftag ft-gold">経営リスク視点</span>
+          <span class="ftag ft-blue">実務手順・具体的数値</span>
+          <span class="ftag ft-purple">ビューで表示切替</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 4 -->
+    <div class="point-card p4">
+      <div class="point-header">
+        <div class="point-icon-wrap ic4">✅</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 04</div>
+          <div class="point-title">「見る図解」から「使う図解」へ</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">チェックボックス・進捗バー・自動保存を実装し、図解を「眺めるもの」から「実際に使い続けるツール」に変えた。</p>
+        <div class="interact-flow">
+          <div class="if-step">クリック<br>でチェック</div>
+          <div class="if-arrow">→</div>
+          <div class="if-step">進捗バー<br>が更新</div>
+          <div class="if-arrow">→</div>
+          <div class="if-step">ブラウザに<br>自動保存</div>
+        </div>
+        <div class="ba-wrap" style="margin-top:12px;">
+          <div class="ba-box ba-before">
+            <div class="ba-label">❌ Before</div>
+            <div class="ba-text">読んで終わり。何を実施したかわからなくなる。</div>
+          </div>
+          <div class="ba-box ba-after">
+            <div class="ba-label">✅ After</div>
+            <div class="ba-text">チェックするたびに進捗が蓄積される実行ツールになる。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 5 -->
+    <div class="point-card p5">
+      <div class="point-header">
+        <div class="point-icon-wrap ic5">⚖️</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 05</div>
+          <div class="point-title">根拠・数値・法令を必ず添える</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">「なんとなく大事」ではなく、数値・法令・コスト目安を明示することで意思決定と行動を後押しする。</p>
+        <div class="evidence-grid">
+          <div class="ev-item">
+            <div class="ev-num" style="color:var(--c1)">70<span style="font-size:14px">%</span></div>
+            <div class="ev-label">30年以内の地震発生確率</div>
+          </div>
+          <div class="ev-item">
+            <div class="ev-num" style="color:var(--c2)">30<span style="font-size:14px">%</span></div>
+            <div class="ev-label">被災後2年以内廃業率</div>
+          </div>
+          <div class="ev-item">
+            <div class="ev-num" style="color:var(--c3)">4<span style="font-size:14px">段階</span></div>
+            <div class="ev-label">コスト目安タグ（低/中/高/大）</div>
+          </div>
+          <div class="ev-item">
+            <div class="ev-num" style="color:var(--c5)">8<span style="font-size:14px">件</span></div>
+            <div class="ev-label">参照法令・ガイドライン数</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 6 -->
+    <div class="point-card p6">
+      <div class="point-header">
+        <div class="point-icon-wrap ic6">🏷️</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 06</div>
+          <div class="point-title">タグで「誰がやるか」を一目でわかる</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">各対策に担当者・決裁区分・法令・コストのタグを付け、「読んで終わり」にならない行動設計にした。</p>
+        <div class="ba-wrap">
+          <div class="ba-box ba-before">
+            <div class="ba-label">❌ Before</div>
+            <div class="ba-text">「防火管理者を選任する」<br>→誰がやるか不明。</div>
+          </div>
+          <div class="ba-box ba-after">
+            <div class="ba-label">✅ After</div>
+            <div class="ba-text">「防火管理者を選任する」<br>
+              <span class="ftag ft-gold" style="margin-top:4px;display:inline-block">経営層主導</span>
+              <span class="ftag ft-red" style="margin-top:4px;display:inline-block">消防法</span>
+              <span class="ftag ft-green" style="margin-top:4px;display:inline-block">★承認</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINT 7 -->
+    <div class="point-card p7 wide">
+      <div class="point-header">
+        <div class="point-icon-wrap ic7">📱</div>
+        <div class="point-meta">
+          <div class="point-num">POINT 07</div>
+          <div class="point-title">スマホでもPCでも使えるレスポンシブ設計</div>
+        </div>
+      </div>
+      <div class="point-body">
+        <p class="point-desc">経営層は移動中にスマホで確認、総務部はPCで詳細を管理──という使い方を想定し、画面サイズに応じてレイアウト・フォント・表示項目を最適化した。</p>
+        <div class="device-row">
+          <div class="device-pc">
+            <div class="device-label">💻 PC — 全情報を表示</div>
+            <div class="device-bar full"></div>
+            <div class="device-bar full" style="opacity:0.3"></div>
+            <div class="device-bar full" style="opacity:0.3"></div>
+          </div>
+          <div class="device-sp">
+            <div class="device-label" style="font-size:8px">📱 スマホ</div>
+            <div class="device-bar half"></div>
+            <div class="device-bar half" style="opacity:0.3"></div>
+          </div>
+        </div>
+        <div class="ba-wrap" style="margin-top:12px;">
+          <div class="ba-box ba-before">
+            <div class="ba-label">❌ Before</div>
+            <div class="ba-text">ヘッダー3段重ねで画面が潰れる。テーブルがはみ出す。タップが小さくて押せない。</div>
+          </div>
+          <div class="ba-box ba-after">
+            <div class="ba-label">✅ After</div>
+            <div class="ba-text">モード切替ボタンのみ上部固定。説明文を折りたたみ。テーブルは横スクロール対応。</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <span class="ftag ft-blue">3ブレークポイント（900px・768px・390px）</span>
+          <span class="ftag ft-green">タッチターゲット 22px以上</span>
+          <span class="ftag ft-purple">sticky要素の高さをJS動的計算</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /points-grid -->
+</div><!-- /main-content -->
+
+<!-- SUMMARY -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="summary-text">
+      <div class="summary-title">この図解が目指したこと</div>
+      <div class="summary-desc">防災図解は「作って満足」で終わりがちです。この図解は<strong>「読んだ人が翌日から行動できる」</strong>ことを最優先に設計しました。ビュー切替・チェック機能・法令根拠・担当タグのすべてが、そのための仕掛けです。</div>
+    </div>
+    <div class="summary-kpis">
+      <div class="skpi">
+        <div class="skpi-num">7</div>
+        <div class="skpi-label">工夫ポイント</div>
+      </div>
+      <div class="skpi">
+        <div class="skpi-num">35</div>
+        <div class="skpi-label">対策アイテム</div>
+      </div>
+      <div class="skpi">
+        <div class="skpi-num">2</div>
+        <div class="skpi-label">読み手ビュー</div>
+      </div>
+      <div class="skpi">
+        <div class="skpi-num">6</div>
+        <div class="skpi-label">フェーズ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
