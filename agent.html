@@ -195,6 +195,84 @@ main{max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
 .alert-box.ab-info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);color:var(--blue);}
 .alert-box.ab-danger{background:var(--red-bg);border:1px solid rgba(255,77,109,.3);color:var(--red);}
 
+/* ===== EXPORT FAB ===== */
+.export-fab{
+  position:fixed;bottom:28px;right:28px;z-index:500;
+  background:linear-gradient(135deg,var(--accent),var(--blue));
+  border:none;border-radius:50px;padding:12px 22px;
+  color:#fff;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 24px rgba(99,102,241,.45);
+  display:flex;align-items:center;gap:8px;transition:all .2s;
+}
+.export-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.55);}
+.export-fab.panel-open{border-radius:12px;}
+
+.export-overlay{
+  display:none;position:fixed;inset:0;z-index:490;background:rgba(0,0,0,.5);
+  backdrop-filter:blur(3px);
+}
+.export-overlay.open{display:block;}
+
+.export-panel{
+  position:fixed;bottom:88px;right:28px;z-index:500;
+  background:var(--s1);border:1px solid var(--border);border-radius:16px;
+  padding:20px;width:280px;
+  box-shadow:0 12px 48px rgba(0,0,0,.6);
+  transform:translateY(12px) scale(.97);opacity:0;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.export-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+.exp-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.exp-opts{display:flex;flex-direction:column;gap:7px;}
+.exp-opt{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:all .18s;font-family:inherit;color:var(--text);
+  text-align:left;width:100%;
+}
+.exp-opt:hover{border-color:var(--accent);background:var(--s3);}
+.exp-opt-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.exp-opt-info{}
+.exp-opt-label{font-size:12px;font-weight:700;display:block;}
+.exp-opt-desc{font-size:10px;color:var(--muted);display:block;margin-top:1px;}
+.exp-opt.disabled{opacity:.4;cursor:not-allowed;}
+.exp-opt.disabled:hover{border-color:var(--border);background:var(--s2);}
+.exp-note{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;}
+.exp-toast{
+  position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--green-bg);border:1px solid var(--green);border-radius:8px;
+  padding:9px 18px;font-size:12px;font-weight:700;color:var(--green);
+  z-index:600;opacity:0;transition:all .3s;white-space:nowrap;
+}
+.exp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===== PRINT STYLES ===== */
+@media print{
+  *{color:#000!important;background:#fff!important;border-color:#ccc!important;box-shadow:none!important;text-shadow:none!important;-webkit-text-fill-color:#000!important;}
+  .topbar,.export-fab,.export-panel,.export-overlay,.hero-flow{display:none!important;}
+  .hero{background:#fff!important;padding:20px 0 12px!important;border-bottom:2px solid #000!important;}
+  .hero h1{font-size:22px!important;background:none!important;color:#000!important;-webkit-text-fill-color:#000!important;}
+  .hero-eyebrow,.hero-sub{color:#555!important;}
+  .phase-section{break-inside:avoid;margin-bottom:28px!important;}
+  .phase-badge{background:#f0f0f0!important;border-color:#999!important;}
+  .phase-title,.phase-eyebrow,.phase-desc{color:#000!important;}
+  .card{background:#f9f9f9!important;border-color:#ccc!important;border-radius:6px!important;padding:12px!important;}
+  .card-title{color:#555!important;}
+  .matrix-table th{background:#eee!important;color:#555!important;}
+  .matrix-table td{color:#000!important;}
+  .priority-badge{border:1px solid #999!important;background:#eee!important;color:#000!important;}
+  .budget-bar{background:#999!important;}
+  .judge-score-ring{background:conic-gradient(#333 calc(var(--pct)*3.6deg),#eee 0deg)!important;}
+  .judge-score-val{color:#000!important;}
+  .denial-item{border-left-color:#999!important;}
+  .verdict-tag,.phase-eyebrow{color:#555!important;}
+  .roi-num,.judge-item-score{color:#000!important;}
+  main{max-width:100%!important;padding:0 12px!important;}
+  a{color:#000!important;text-decoration:none!important;}
+  .link-back{display:none!important;}
+}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:700px){
   .topbar{padding:8px 14px;gap:8px;}
@@ -793,6 +871,235 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
+
+// ======================== EXPORT ========================
+let _exportData = null;
+
+function storeExportData(profile, phase1Items, budgetItems, totalAmt, roiData, denials, judgeItems, judgeTotal, verdict) {
+  _exportData = {
+    generated: new Date().toISOString(),
+    tool: 'BCP構築エージェント 意思決定フレームワーク',
+    url: 'https://ika-del.github.io/kigyobosai-bcp/agent.html',
+    profile,
+    phase1_priority: phase1Items,
+    phase2_budget: { phases: budgetItems, total_first_year: totalAmt, roi: roiData },
+    phase3_denials: denials,
+    phase4_judge: { score: judgeTotal, verdict, items: judgeItems }
+  };
+}
+
+function toggleExportPanel() {
+  const panel = document.getElementById('exp-panel');
+  const overlay = document.getElementById('exp-overlay');
+  const fab = document.getElementById('exp-fab');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  fab.classList.toggle('panel-open', !isOpen);
+
+  const opts = document.querySelectorAll('.exp-opt');
+  opts.forEach(o => {
+    if (_exportData) o.classList.remove('disabled');
+    else if (!o.dataset.always) o.classList.add('disabled');
+  });
+}
+
+function exportAgentPDF() {
+  toggleExportPanel();
+  setTimeout(() => window.print(), 200);
+}
+
+function exportAgentJSON() {
+  if (!_exportData) return showToast('先にPhase 0を入力して自動計算してください');
+  const blob = new Blob([JSON.stringify(_exportData, null, 2)], { type: 'application/json' });
+  const company = _exportData.profile.company.replace(/[^\w\u3040-\u9faf]/g, '_') || 'BCP';
+  downloadBlob(blob, `BCP_${company}_${dateStr()}.json`);
+  toggleExportPanel();
+}
+
+function exportAgentCSV() {
+  if (!_exportData) return showToast('先にPhase 0を入力して自動計算してください');
+  const rows = [['対策アイテム', '緊急度(/10)', '費用対効果(/10)', '実施容易性(/10)', '合計(/30)', '優先度', '根拠']];
+  _exportData.phase1_priority.forEach(item => {
+    rows.push([item.name, item.urgency, item.roi, item.ease, item.total, item.prio.replace(/[🔴🟠🟡🟢]/g,'').trim(), item.reason]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const company = _exportData.profile.company.replace(/[^\w\u3040-\u9faf]/g, '_') || 'BCP';
+  downloadBlob(blob, `BCP優先度マトリクス_${company}_${dateStr()}.csv`);
+  toggleExportPanel();
+}
+
+function exportAgentText() {
+  if (!_exportData) return showToast('先にPhase 0を入力して自動計算してください');
+  const d = _exportData;
+  const p = d.profile;
+  const r = d.phase2_budget.roi;
+  const j = d.phase4_judge;
+  const text = [
+    `■ BCP構築 最終ジャッジレポート`,
+    `生成日時: ${new Date(d.generated).toLocaleString('ja-JP')}`,
+    ``,
+    `【企業プロファイル】`,
+    `企業名: ${p.company}　業種: ${p.industryLabel}　規模: ${p.employees}名　所在地: ${p.locationLabel}`,
+    `現状: ${p.statusLabel}　年間予算感: ${p.budgetLimit > 0 ? p.budgetLimit+'万円' : '未定'}`,
+    ``,
+    `【Phase 4 最終ジャッジ】`,
+    `判定: ${j.verdict}（${j.score}/100点）`,
+    ``,
+    `【Phase 2 予算・ROI】`,
+    `初年度投資合計: 〜${d.phase2_budget.total_first_year}万円`,
+    `年間期待損失: ${r.annualLoss}万円　年間リスク低減: ${r.reduction}万円　回収期間: ${r.payback}年`,
+    ``,
+    `【Phase 1 最優先対策 Top5】`,
+    ...d.phase1_priority.slice(0,5).map((item,i) => `${i+1}. ${item.name}（${item.total}/30点）`),
+    ``,
+    `【Phase 3 全否定 サマリー】`,
+    ...d.phase3_denials.map(d => `・${d.verdict_label}: ${d.question_short}`),
+    ``,
+    `参考: ${d.url}`
+  ].join('\n');
+
+  navigator.clipboard.writeText(text).then(() => showToast('📋 テキストをコピーしました'));
+  toggleExportPanel();
+}
+
+function downloadBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function dateStr() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('exp-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ======================== 元のrunAgent拡張 ========================
+const _origRunAgent = runAgent;
+function runAgent() {
+  _origRunAgent();
+  // runAgent 完了後にエクスポートデータを収集
+  setTimeout(collectExportData, 100);
+}
+
+function collectExportData() {
+  const company   = document.getElementById('company-name').value || '貴社';
+  const industry  = document.getElementById('industry').value;
+  const employees = parseInt(document.getElementById('employees').value) || 100;
+  const location  = document.getElementById('location').value;
+  const status    = document.getElementById('current-status').value;
+  const budgetLim = parseInt(document.getElementById('budget-limit').value) || 0;
+  const ind = INDUSTRY_DATA[industry];
+  const loc = LOCATION_DATA[location];
+  const scaleMulti = employees <= 50 ? 0.4 : employees <= 300 ? 1.0 : 2.8;
+  const bonus = Math.min(ind.urgency_bonus + loc.urgency_bonus, 2);
+  const statusMod = status === 'advanced' ? -2 : status === 'partial' ? -1 : 0;
+
+  const phase1Items = BASE_ITEMS.map(item => {
+    const u = Math.min(10, item.urgency + bonus + statusMod);
+    const total = u + item.roi + item.ease;
+    const prio = total >= 24 ? '🔴 CRITICAL' : total >= 18 ? '🟠 HIGH' : total >= 12 ? '🟡 MEDIUM' : '🟢 LOW';
+    return { name: item.name, urgency: u, roi: item.roi, ease: item.ease, total, prio, reason: item.reason };
+  }).sort((a, b) => b.total - a.total);
+
+  const budgetPhases = [
+    { label: 'Phase1 人命・初動',   amount: Math.round(30  * scaleMulti) },
+    { label: 'Phase2 組織・体制',   amount: Math.round(50  * scaleMulti) },
+    { label: 'Phase3 備蓄・設備',   amount: Math.round(150 * scaleMulti) },
+    { label: 'Phase4 情報・通信',   amount: Math.round(100 * scaleMulti) },
+    { label: 'Phase5 事業継続',     amount: Math.round(200 * scaleMulti) },
+    { label: 'Phase6 継続改善(年)', amount: Math.round(50  * scaleMulti) },
+  ];
+  const totalAmt = budgetPhases.slice(0,5).reduce((s,i) => s + i.amount, 0);
+  const annualLoss  = Math.round(ind.damage_base * scaleMulti * loc.prob_30yr / 30 / 100);
+  const reduction   = Math.round(annualLoss * 0.5);
+  const annualInvest = Math.round(totalAmt / 3 + budgetPhases[5].amount);
+  const payback = annualInvest > 0 ? (annualInvest / reduction).toFixed(1) : '—';
+
+  const scoreEl = document.getElementById('total-score-mini');
+  const totalScore = parseInt(scoreEl.textContent) || 0;
+  const verdictText = totalScore >= 85 ? '強く推奨（Go）' : totalScore >= 70 ? '推奨（Go）' : totalScore >= 55 ? '条件付き推奨' : totalScore >= 40 ? '計画見直し' : '非推奨（No-Go）';
+
+  const statusLabels = { zero: 'ほぼゼロ', partial: '一部実施済み', advanced: 'かなり整備済み' };
+  const denialVerdicts = ['部分的に受け入れる','反証する','部分的に受け入れる','反証する','反証する','反証する','部分的に受け入れる','受け入れる'];
+  const denialShorts = ['予算半額でも同効果か？','優先度根拠は正確か？','実行人材・時間は存在するか？','BCP整備で廃業を防げるか？','他に高ROI投資があるか？','今すぐ必要か？','法令解釈は過剰か？','地震以外のリスクを軽視していないか？'];
+
+  _exportData = {
+    generated: new Date().toISOString(),
+    tool: 'BCP構築エージェント 意思決定フレームワーク',
+    url: 'https://ika-del.github.io/kigyobosai-bcp/agent.html',
+    profile: {
+      company, industry, industryLabel: ind.label,
+      employees, location, locationLabel: loc.label,
+      status, statusLabel: statusLabels[status], budgetLimit: budgetLim
+    },
+    phase1_priority: phase1Items,
+    phase2_budget: {
+      phases: budgetPhases, total_first_year: totalAmt,
+      roi: { annualLoss, reduction, payback, annualInvest }
+    },
+    phase3_denials: denialVerdicts.map((v, i) => ({
+      question_short: denialShorts[i], verdict_label: v
+    })),
+    phase4_judge: {
+      score: totalScore, verdict: verdictText
+    }
+  };
+}
 </script>
+<!-- EXPORT FAB -->
+<button class="export-fab" id="exp-fab" onclick="toggleExportPanel()">⬇ エクスポート</button>
+
+<!-- OVERLAY -->
+<div class="export-overlay" id="exp-overlay" onclick="toggleExportPanel()"></div>
+
+<!-- EXPORT PANEL -->
+<div class="export-panel" id="exp-panel">
+  <div class="exp-title">エクスポート形式を選択</div>
+  <div class="exp-opts">
+    <button class="exp-opt" data-always="1" onclick="exportAgentPDF()">
+      <span class="exp-opt-icon">🖨️</span>
+      <span class="exp-opt-info">
+        <span class="exp-opt-label">PDF出力（印刷）</span>
+        <span class="exp-opt-desc">ブラウザの印刷ダイアログを開く</span>
+      </span>
+    </button>
+    <button class="exp-opt disabled" onclick="exportAgentJSON()">
+      <span class="exp-opt-icon">⬇️</span>
+      <span class="exp-opt-info">
+        <span class="exp-opt-label">JSONダウンロード</span>
+        <span class="exp-opt-desc">全フェーズの計算結果をJSONで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt disabled" onclick="exportAgentCSV()">
+      <span class="exp-opt-icon">📊</span>
+      <span class="exp-opt-info">
+        <span class="exp-opt-label">CSVダウンロード</span>
+        <span class="exp-opt-desc">優先度マトリクスをExcel用CSVで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt disabled" onclick="exportAgentText()">
+      <span class="exp-opt-icon">📋</span>
+      <span class="exp-opt-info">
+        <span class="exp-opt-label">テキストコピー</span>
+        <span class="exp-opt-desc">最終ジャッジサマリーをクリップボードへ</span>
+      </span>
+    </button>
+  </div>
+  <div class="exp-note">JSON/CSV/テキストは自動計算後に有効になります</div>
+</div>
+
+<!-- TOAST -->
+<div class="exp-toast" id="exp-toast"></div>
+
 </body>
 </html>
