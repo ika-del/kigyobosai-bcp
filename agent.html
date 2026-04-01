@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BCP構築エージェント｜意思決定フレームワーク</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090f;
+  --s1: #11131c;
+  --s2: #181b27;
+  --s3: #1f2235;
+  --border: #272b42;
+  --text: #e2e6f3;
+  --muted: #6b769a;
+  --accent: #6366f1;
+  --red: #ff4d6d;    --red-bg: #250d17;
+  --orange: #ff8c42; --orange-bg: #25180a;
+  --yellow: #f5c842; --orange-bg2: #25210a;
+  --blue: #4db8ff;   --blue-bg: #091c28;
+  --green: #3ddc97;  --green-bg: #091e14;
+  --purple: #a78bfa; --purple-bg: #150f28;
+  --gold: #f0b429;   --gold-bg: #221a07;
+  --critical: #ff4d6d;
+  --high: #ff8c42;
+  --medium: #f5c842;
+  --low: #3ddc97;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.65;}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  background:var(--s1);border-bottom:1px solid var(--border);
+  padding:10px 32px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:300;
+}
+.topbar-logo{font-size:13px;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
+.topbar-sep{color:var(--border);}
+.phase-pills{display:flex;gap:6px;overflow-x:auto;flex:1;}
+.ppill{font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s;}
+.ppill.pp0{border-color:var(--purple);color:var(--purple);}
+.ppill.pp1{border-color:var(--red);color:var(--red);}
+.ppill.pp2{border-color:var(--gold);color:var(--gold);}
+.ppill.pp3{border-color:var(--orange);color:var(--orange);}
+.ppill.pp4{border-color:var(--green);color:var(--green);}
+.ppill.pp5{border-color:var(--blue);color:var(--blue);}
+.judge-score-mini{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;white-space:nowrap;margin-left:auto;}
+.judge-score-mini span{color:var(--accent);font-size:16px;}
+
+/* ===== HERO ===== */
+.hero{padding:52px 32px 44px;text-align:center;background:linear-gradient(160deg,var(--s1) 0%,var(--bg) 100%);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 30% 60%,rgba(99,102,241,.07) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 70% 40%,rgba(77,184,255,.05) 0%,transparent 60%);pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);padding:4px 14px;border-radius:20px;margin-bottom:18px;text-transform:uppercase;}
+.hero h1{font-size:clamp(22px,3.5vw,40px);font-weight:900;line-height:1.25;background:linear-gradient(120deg,#fff 10%,var(--accent) 55%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;}
+.hero-sub{font-size:14px;color:var(--muted);max-width:520px;margin:0 auto 28px;}
+.hero-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;}
+.hf-step{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;font-size:11px;font-weight:700;min-width:100px;}
+.hf-step small{display:block;font-size:9px;font-weight:400;color:var(--muted);margin-top:2px;}
+.hf-arr{color:var(--border);font-size:16px;padding:0 6px;}
+.hf-step.hs0{border-color:var(--purple);color:var(--purple);}
+.hf-step.hs1{border-color:var(--red);color:var(--red);}
+.hf-step.hs2{border-color:var(--gold);color:var(--gold);}
+.hf-step.hs3{border-color:var(--orange);color:var(--orange);}
+.hf-step.hs4{border-color:var(--green);color:var(--green);}
+.hf-step.hs5{border-color:var(--blue);color:var(--blue);}
+
+/* ===== MAIN ===== */
+main{max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
+.phase-section{margin-bottom:48px;}
+.phase-header-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.phase-badge{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pb0{background:var(--purple-bg);border:1px solid var(--purple);}
+.pb1{background:var(--red-bg);border:1px solid var(--red);}
+.pb2{background:var(--gold-bg);border:1px solid var(--gold);}
+.pb3{background:var(--orange-bg);border:1px solid var(--orange);}
+.pb4{background:var(--green-bg);border:1px solid var(--green);}
+.pb5{background:var(--blue-bg);border:1px solid var(--blue);}
+.phase-title-area{}
+.phase-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+.phase-title{font-size:20px;font-weight:800;}
+.phase-desc{font-size:13px;color:var(--muted);margin-top:2px;}
+
+/* ===== CARDS ===== */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:14px;}
+.card-title{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ===== PROFILE FORM ===== */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;font-weight:700;color:var(--muted);}
+.field input,.field select,.field textarea{
+  background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:inherit;font-size:13px;
+  padding:9px 12px;outline:none;transition:border-color .2s;
+}
+.field input:focus,.field select,.field textarea:focus{border-color:var(--accent);}
+.field select option{background:var(--s2);}
+.run-btn{
+  margin-top:14px;width:100%;padding:13px;border-radius:10px;
+  background:linear-gradient(90deg,var(--accent),var(--blue));
+  border:none;color:#fff;font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;transition:opacity .2s;letter-spacing:.04em;
+}
+.run-btn:hover{opacity:.85;}
+
+/* ===== PRIORITY MATRIX ===== */
+.matrix-table{width:100%;border-collapse:collapse;font-size:12px;}
+.matrix-table th{background:var(--s2);color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.matrix-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.matrix-table tr:last-child td{border-bottom:none;}
+.matrix-table tr:hover td{background:var(--s2);}
+.score-cell{font-weight:700;text-align:center;}
+.priority-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;}
+.prio-critical{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.prio-high{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange);}
+.prio-medium{background:var(--orange-bg2);color:var(--yellow);border:1px solid var(--yellow);}
+.prio-low{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+
+/* ===== BUDGET BARS ===== */
+.budget-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.budget-label{font-size:12px;font-weight:500;min-width:130px;}
+.budget-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.budget-bar{height:100%;border-radius:4px;transition:width .8s ease;}
+.budget-amount{font-size:12px;font-weight:700;min-width:80px;text-align:right;}
+.roi-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;}
+.roi-num{font-size:24px;font-weight:900;}
+.roi-label{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* ===== 全否定フェーズ ===== */
+.denial-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.denial-item{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-left:3px solid var(--orange);}
+.denial-item.resolved-accept{border-left-color:var(--green);}
+.denial-item.resolved-partial{border-left-color:var(--yellow);}
+.denial-item.resolved-reject{border-left-color:var(--red);}
+.denial-num{font-size:9px;font-weight:700;color:var(--orange);letter-spacing:.1em;margin-bottom:4px;}
+.denial-question{font-size:12px;font-weight:600;margin-bottom:8px;line-height:1.5;}
+.denial-verdict{font-size:11px;color:var(--muted);line-height:1.6;}
+.denial-verdict strong{color:var(--text);}
+.verdict-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:5px;}
+.vt-accept{background:var(--green-bg);color:var(--green);}
+.vt-partial{background:var(--orange-bg2);color:var(--yellow);}
+.vt-reject{background:var(--red-bg);color:var(--red);}
+
+/* ===== 最終ジャッジ ===== */
+.judge-main{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;}
+.judge-verdict-panel{text-align:center;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;min-width:200px;}
+.judge-verdict-icon{font-size:48px;margin-bottom:12px;}
+.judge-verdict-label{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+.judge-verdict-text{font-size:20px;font-weight:900;margin-bottom:12px;}
+.judge-score-ring{
+  width:90px;height:90px;border-radius:50%;
+  background:conic-gradient(var(--accent) calc(var(--pct)*3.6deg), var(--border) 0deg);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 8px;position:relative;
+}
+.judge-score-ring::before{content:'';position:absolute;inset:8px;border-radius:50%;background:var(--s2);}
+.judge-score-val{position:relative;font-size:20px;font-weight:900;color:var(--accent);}
+.judge-score-unit{font-size:11px;color:var(--muted);margin-top:2px;}
+.judge-items{display:flex;flex-direction:column;gap:10px;}
+.judge-item{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
+.judge-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.judge-item-name{font-size:12px;font-weight:700;}
+.judge-item-score{font-size:13px;font-weight:900;color:var(--accent);}
+.judge-bar-wrap{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.judge-bar{height:100%;border-radius:3px;}
+.judge-item-reason{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.55;}
+
+/* ===== RECOMMENDATIONS ===== */
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rec-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.rec-card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.rec-card.rc-exec .rec-card-title{color:var(--gold);}
+.rec-card.rc-soumu .rec-card-title{color:var(--blue);}
+.rec-item{font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
+.rec-item:last-child{border-bottom:none;}
+.rec-num{color:var(--accent);font-weight:700;flex-shrink:0;}
+
+/* ===== LINK BACK ===== */
+.link-back{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;}
+.lbtn{
+  font-size:12px;font-weight:700;padding:9px 18px;border-radius:8px;
+  border:1px solid var(--border);color:var(--muted);text-decoration:none;
+  transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.lbtn:hover{border-color:var(--accent);color:var(--text);}
+.lbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* ===== ALERT BOX ===== */
+.alert-box{border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;font-size:12px;}
+.alert-box.ab-warn{background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);color:var(--orange);}
+.alert-box.ab-info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);color:var(--blue);}
+.alert-box.ab-danger{background:var(--red-bg);border:1px solid rgba(255,77,109,.3);color:var(--red);}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:700px){
+  .topbar{padding:8px 14px;gap:8px;}
+  .topbar-logo{font-size:12px;}
+  .hero{padding:32px 16px 28px;}
+  .hero-flow{gap:4px;}
+  .hf-step{min-width:60px;padding:8px 8px;font-size:9px;}
+  .hf-arr{font-size:12px;padding:0 2px;}
+  main{padding:24px 14px 60px;}
+  .profile-grid,.denial-grid,.rec-grid{grid-template-columns:1fr;}
+  .judge-main{grid-template-columns:1fr;gap:16px;}
+  .roi-card{grid-template-columns:repeat(3,1fr);}
+  .phase-header-row{gap:10px;}
+  .phase-title{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">BCP構築エージェント</div>
+  <div class="topbar-sep">|</div>
+  <div class="phase-pills">
+    <a href="#phase0" class="ppill pp0">🔍 P0 プロファイル</a>
+    <a href="#phase1" class="ppill pp1">📊 P1 優先度</a>
+    <a href="#phase2" class="ppill pp2">💴 P2 予算化</a>
+    <a href="#phase3" class="ppill pp3">😈 P3 全否定</a>
+    <a href="#phase4" class="ppill pp4">⚖️ P4 最終ジャッジ</a>
+    <a href="#phase5" class="ppill pp5">🚀 P5 実行</a>
+  </div>
+  <div class="judge-score-mini">総合判定 <span id="total-score-mini">—</span>点</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">⚡ BCP Corporate Agent</div>
+  <h1>企業BCP構築<br>5フェーズ意思決定フレームワーク</h1>
+  <p class="hero-sub">プロファイリングから全否定・最終ジャッジまで。感情論ゼロ・根拠ベースの防災投資判断ツール。</p>
+  <div class="hero-flow">
+    <div class="hf-step hs0">🔍 P0<small>プロファイル</small></div>
+    <div class="hf-arr">→</div>
+    <div class="hf-step hs1">📊 P1<small>優先度</small></div>
+    <div class="hf-arr">→</div>
+    <div class="hf-step hs2">💴 P2<small>予算化</small></div>
+    <div class="hf-arr">→</div>
+    <div class="hf-step hs3">😈 P3<small>全否定</small></div>
+    <div class="hf-arr">→</div>
+    <div class="hf-step hs4">⚖️ P4<small>最終ジャッジ</small></div>
+    <div class="hf-arr">→</div>
+    <div class="hf-step hs5">🚀 P5<small>実行</small></div>
+  </div>
+</div>
+
+<main>
+
+<!-- ======================== PHASE 0 ======================== -->
+<div class="phase-section" id="phase0">
+  <div class="phase-header-row">
+    <div class="phase-badge pb0">🔍</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 00 — 入力</div>
+      <div class="phase-title">企業プロファイリング</div>
+      <div class="phase-desc">企業情報を入力すると、以降のフェーズが自動計算されます</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">企業基本情報</div>
+    <div class="profile-grid">
+      <div class="field">
+        <label>企業名・組織名</label>
+        <input type="text" id="company-name" placeholder="例：株式会社〇〇" value="">
+      </div>
+      <div class="field">
+        <label>業種</label>
+        <select id="industry">
+          <option value="office">一般オフィス業</option>
+          <option value="it">IT・SaaS・テック</option>
+          <option value="manufacturing">製造業（工場あり）</option>
+          <option value="retail">小売業・飲食</option>
+          <option value="medical">医療・介護・福祉</option>
+          <option value="finance">金融・保険</option>
+          <option value="construction">建設・不動産</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>従業員数（名）</label>
+        <input type="number" id="employees" placeholder="100" value="100" min="1">
+      </div>
+      <div class="field">
+        <label>主要拠点（都道府県）</label>
+        <select id="location">
+          <option value="tokyo23">東京都（23区内）</option>
+          <option value="tokyo-other">東京都（23区外）</option>
+          <option value="kanagawa">神奈川県</option>
+          <option value="osaka">大阪府</option>
+          <option value="aichi">愛知・静岡（南海トラフ直撃）</option>
+          <option value="other-coast">その他太平洋沿岸</option>
+          <option value="inland">内陸部・北海道・東北</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>現在の防災対策状況</label>
+        <select id="current-status">
+          <option value="zero">ほぼゼロ（法定点検のみ）</option>
+          <option value="partial">一部実施（訓練・備蓄など）</option>
+          <option value="advanced">かなり整備済み（BCP策定済み）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>年間防災予算感（万円）</label>
+        <input type="number" id="budget-limit" placeholder="未定の場合は0" value="0" min="0">
+      </div>
+    </div>
+    <button class="run-btn" onclick="runAgent()">⚡ 全フェーズを自動計算する</button>
+  </div>
+</div>
+
+<!-- ======================== PHASE 1 ======================== -->
+<div class="phase-section" id="phase1">
+  <div class="phase-header-row">
+    <div class="phase-badge pb1">📊</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 01 — 根拠ベース</div>
+      <div class="phase-title">優先度スコアリング</div>
+      <div class="phase-desc">緊急度 × 費用対効果 × 実施容易性 の3軸で全対策を順位付け</div>
+    </div>
+  </div>
+
+  <div class="alert-box ab-info" id="phase1-alert">
+    <span>ℹ️</span><span>Phase 0 の情報を入力して「自動計算」を実行すると、企業プロファイルに最適化されたスコアが表示されます。</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">優先度マトリクス</div>
+    <div style="overflow-x:auto;">
+    <table class="matrix-table" id="priority-table">
+      <thead>
+        <tr>
+          <th>対策アイテム</th>
+          <th style="text-align:center;">緊急度<br>/10</th>
+          <th style="text-align:center;">費用対効果<br>/10</th>
+          <th style="text-align:center;">実施容易性<br>/10</th>
+          <th style="text-align:center;">合計<br>/30</th>
+          <th>優先度</th>
+          <th>根拠</th>
+        </tr>
+      </thead>
+      <tbody id="priority-tbody">
+        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">Phase 0 を入力して自動計算してください</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PHASE 2 ======================== -->
+<div class="phase-section" id="phase2">
+  <div class="phase-header-row">
+    <div class="phase-badge pb2">💴</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 02 — 財務判断</div>
+      <div class="phase-title">予算化・ROI試算</div>
+      <div class="phase-desc">投資額・期待損失・リスク低減効果から投資回収期間を算出</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">フェーズ別 投資配分</div>
+    <div id="budget-bars">
+      <div style="text-align:center;color:var(--muted);padding:20px;">Phase 0 を入力して自動計算してください</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ROI試算サマリー</div>
+    <div class="roi-card" id="roi-card">
+      <div><div class="roi-num" id="roi-annual-loss" style="color:var(--red)">—</div><div class="roi-label">年間期待損失額</div></div>
+      <div><div class="roi-num" id="roi-reduction" style="color:var(--green)">—</div><div class="roi-label">年間リスク低減額</div></div>
+      <div><div class="roi-num" id="roi-payback" style="color:var(--gold)">—</div><div class="roi-label">投資回収期間</div></div>
+    </div>
+    <div id="roi-detail" style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.7;"></div>
+  </div>
+</div>
+
+<!-- ======================== PHASE 3 ======================== -->
+<div class="phase-section" id="phase3">
+  <div class="phase-header-row">
+    <div class="phase-badge pb3">😈</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 03 — 批判的検証</div>
+      <div class="phase-title">全否定フェーズ（悪魔の弁護人）</div>
+      <div class="phase-desc">Phase 1〜2の結論を意図的に全否定し、確証バイアスと盲点を洗い出す</div>
+    </div>
+  </div>
+
+  <div class="alert-box ab-danger">
+    <span>⚠️</span>
+    <span><strong>このフェーズの目的は「批判すること」ではなく「計画を強化すること」です。</strong> 全ての否定に対し「受け入れる / 部分的に受け入れる / 反証する」のいずれかで応答し、計画を精査します。</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">8つの否定と反証</div>
+    <div class="denial-grid" id="denial-grid">
+      <div style="grid-column:span 2;text-align:center;color:var(--muted);padding:20px;">Phase 0 を入力して自動計算してください</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PHASE 4 ======================== -->
+<div class="phase-section" id="phase4">
+  <div class="phase-header-row">
+    <div class="phase-badge pb4">⚖️</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 04 — 経営判断</div>
+      <div class="phase-title">最終ジャッジ（Go / No-Go）</div>
+      <div class="phase-desc">5項目・100点満点で採点し、Go/No-Go と経営層への提言を出力</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="judge-main" id="judge-main">
+      <div style="text-align:center;color:var(--muted);padding:20px;grid-column:span 2;">Phase 0 を入力して自動計算してください</div>
+    </div>
+  </div>
+
+  <div class="card" id="rec-card-wrap" style="display:none;">
+    <div class="card-title">経営提言 & 実行指示</div>
+    <div class="rec-grid" id="rec-grid"></div>
+  </div>
+</div>
+
+<!-- ======================== PHASE 5 ======================== -->
+<div class="phase-section" id="phase5">
+  <div class="phase-header-row">
+    <div class="phase-badge pb5">🚀</div>
+    <div class="phase-title-area">
+      <div class="phase-eyebrow">PHASE 05 — 実行</div>
+      <div class="phase-title">実行ロードマップへ</div>
+      <div class="phase-desc">ジャッジ結果をもとに、具体的な実行図解ツールへ移行する</div>
+    </div>
+  </div>
+
+  <div class="card" id="phase5-summary">
+    <div class="card-title">次のアクション</div>
+    <div id="phase5-content" style="color:var(--muted);font-size:13px;">Phase 0〜4を完了すると、個別化された実行プランが表示されます。</div>
+  </div>
+
+  <div class="link-back">
+    <a href="index.html" class="lbtn primary">🏢 防災ロードマップ（チェックリスト）を開く →</a>
+    <a href="design-notes.html" class="lbtn">✨ 設計の工夫ポイントを見る</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ======================== DATA ========================
+const INDUSTRY_DATA = {
+  office:       { urgency_bonus: 0, damage_base: 2000, label: '一般オフィス業' },
+  it:           { urgency_bonus: 2, damage_base: 5000, label: 'IT・SaaS・テック' },
+  manufacturing:{ urgency_bonus: 1, damage_base: 8000, label: '製造業（工場あり）' },
+  retail:       { urgency_bonus: 0, damage_base: 3000, label: '小売業・飲食' },
+  medical:      { urgency_bonus: 2, damage_base: 6000, label: '医療・介護・福祉' },
+  finance:      { urgency_bonus: 2, damage_base: 7000, label: '金融・保険' },
+  construction: { urgency_bonus: 1, damage_base: 4000, label: '建設・不動産' }
+};
+
+const LOCATION_DATA = {
+  'tokyo23':      { urgency_bonus: 2, prob_30yr: 70, label: '東京都（23区内）' },
+  'tokyo-other':  { urgency_bonus: 1, prob_30yr: 60, label: '東京都（23区外）' },
+  'kanagawa':     { urgency_bonus: 1, prob_30yr: 55, label: '神奈川県' },
+  'osaka':        { urgency_bonus: 1, prob_30yr: 60, label: '大阪府' },
+  'aichi':        { urgency_bonus: 2, prob_30yr: 80, label: '愛知・静岡' },
+  'other-coast':  { urgency_bonus: 1, prob_30yr: 45, label: 'その他太平洋沿岸' },
+  'inland':       { urgency_bonus: 0, prob_30yr: 30, label: '内陸部・北海道・東北' }
+};
+
+const BASE_ITEMS = [
+  { name: '緊急避難経路・掲示更新', urgency: 9, roi: 9, ease: 9, reason: '消防法上の義務。未整備は立入検査で即時指摘対象。' },
+  { name: '安否確認システム導入',   urgency: 9, roi: 8, ease: 7, reason: '発災後72時間の全員確認が顧客・取引先対応の前提。' },
+  { name: '緊急連絡網の整備',       urgency: 8, roi: 9, ease: 9, reason: '指揮系統の崩壊を防ぐ最低コスト対策。' },
+  { name: 'AED・救急用品整備',      urgency: 8, roi: 8, ease: 9, reason: '労働安全衛生法上の安全配慮義務。整備不備は労災リスク。' },
+  { name: '家具・什器の転倒防止',   urgency: 8, roi: 7, ease: 6, reason: '什器転倒による人的被害は使用者責任の対象。' },
+  { name: '帰宅困難者対応方針策定', urgency: 7, roi: 7, ease: 8, reason: '東京都条例で3日分備蓄が義務。経営承認が必要。' },
+  { name: '防災責任者の選任',       urgency: 9, roi: 6, ease: 8, reason: '消防法違反（防火管理者未選任）は30万円以下の罰金。' },
+  { name: '防災訓練の年2回実施',    urgency: 7, roi: 7, ease: 6, reason: '消防法の法定義務。実施記録の保存が必要。' },
+  { name: '非常食・飲料水3日分備蓄',urgency: 7, roi: 7, ease: 6, reason: '東京都条例義務。未対応は是正指導の対象。' },
+  { name: 'クラウドバックアップ',   urgency: 7, roi: 8, ease: 6, reason: 'データ消失は事業継続不能に直結。RPO・RTOを定義。' },
+  { name: 'テレワーク環境整備',     urgency: 6, roi: 7, ease: 6, reason: 'オフィス被災時に業務継続できる最重要インフラ。' },
+  { name: '非常用電源・発電機',     urgency: 6, roi: 6, ease: 4, reason: '停電時の通信・PC維持に必要。設備投資判断は経営層。' },
+  { name: '耐震診断の実施',         urgency: 8, roi: 5, ease: 3, reason: '旧耐震基準建物での人的被害は使用者責任。補助金活用可。' },
+  { name: 'BCP文書の策定',          urgency: 6, roi: 7, ease: 4, reason: '金融機関・大手取引先がBCP有無を与信審査に含める事例増加。' },
+  { name: '災害保険・地震保険見直し',urgency: 5, roi: 6, ease: 5, reason: '多くの火災保険は地震免責。補償ギャップの把握が必須。' },
+];
+
+// ======================== MAIN AGENT ========================
+function runAgent() {
+  const company  = document.getElementById('company-name').value || '貴社';
+  const industry = document.getElementById('industry').value;
+  const employees= parseInt(document.getElementById('employees').value) || 100;
+  const location = document.getElementById('location').value;
+  const status   = document.getElementById('current-status').value;
+  const budgetLim= parseInt(document.getElementById('budget-limit').value) || 0;
+
+  const ind = INDUSTRY_DATA[industry];
+  const loc = LOCATION_DATA[location];
+  const scale = employees <= 50 ? 'small' : employees <= 300 ? 'mid' : 'large';
+  const scaleMulti = { small: 0.4, mid: 1.0, large: 2.8 }[scale];
+
+  // Phase 1
+  renderPhase1(ind, loc, status);
+  // Phase 2
+  renderPhase2(company, employees, ind, loc, scale, scaleMulti, budgetLim);
+  // Phase 3
+  renderPhase3(company, ind, loc, scale, status, budgetLim);
+  // Phase 4
+  renderPhase4(company, ind, loc, scale, status, scaleMulti);
+  // Phase 5
+  renderPhase5(company);
+
+  document.getElementById('phase1-alert').style.display = 'none';
+  document.getElementById('phase0').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ======================== PHASE 1 RENDER ========================
+function renderPhase1(ind, loc, status) {
+  const bonus = Math.min(ind.urgency_bonus + loc.urgency_bonus, 2);
+  const statusMod = status === 'advanced' ? -2 : status === 'partial' ? -1 : 0;
+
+  const scored = BASE_ITEMS.map(item => {
+    const u = Math.min(10, item.urgency + bonus + statusMod);
+    const r = item.roi;
+    const e = item.ease;
+    const total = u + r + e;
+    let prio, cls;
+    if (total >= 24) { prio = '🔴 CRITICAL'; cls = 'prio-critical'; }
+    else if (total >= 18) { prio = '🟠 HIGH'; cls = 'prio-high'; }
+    else if (total >= 12) { prio = '🟡 MEDIUM'; cls = 'prio-medium'; }
+    else { prio = '🟢 LOW'; cls = 'prio-low'; }
+    return { ...item, u, total, prio, cls };
+  }).sort((a, b) => b.total - a.total);
+
+  const tbody = document.getElementById('priority-tbody');
+  tbody.innerHTML = scored.map(item => `
+    <tr>
+      <td style="font-weight:500">${item.name}</td>
+      <td class="score-cell" style="color:var(--red)">${item.u}</td>
+      <td class="score-cell" style="color:var(--gold)">${item.roi}</td>
+      <td class="score-cell" style="color:var(--green)">${item.ease}</td>
+      <td class="score-cell" style="color:var(--accent);font-size:14px">${item.total}</td>
+      <td><span class="priority-badge ${item.cls}">${item.prio}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${item.reason}</td>
+    </tr>`).join('');
+}
+
+// ======================== PHASE 2 RENDER ========================
+function renderPhase2(company, employees, ind, loc, scale, scaleMulti, budgetLim) {
+  const budgets = [
+    { label: 'Phase1 人命・初動', base: 30, color: 'var(--red)' },
+    { label: 'Phase2 組織・体制', base: 50, color: 'var(--orange)' },
+    { label: 'Phase3 備蓄・設備', base: 150, color: 'var(--yellow)' },
+    { label: 'Phase4 情報・通信', base: 100, color: 'var(--blue)' },
+    { label: 'Phase5 事業継続',   base: 200, color: 'var(--green)' },
+    { label: 'Phase6 継続改善/年', base: 50, color: 'var(--purple)' },
+  ];
+
+  const items = budgets.map(b => ({ ...b, amount: Math.round(b.base * scaleMulti) }));
+  const maxAmt = Math.max(...items.map(i => i.amount));
+  const totalAmt = items.slice(0, 5).reduce((s, i) => s + i.amount, 0);
+
+  const wrap = document.getElementById('budget-bars');
+  wrap.innerHTML = items.map(item => `
+    <div class="budget-row">
+      <div class="budget-label">${item.label}</div>
+      <div class="budget-bar-wrap">
+        <div class="budget-bar" style="width:${(item.amount/maxAmt*100).toFixed(0)}%;background:${item.color};"></div>
+      </div>
+      <div class="budget-amount" style="color:${item.color}">〜${item.amount}万円</div>
+    </div>
+  `).join('') + `
+    <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:6px;display:flex;justify-content:space-between;font-size:13px;">
+      <span style="color:var(--muted)">初年度合計（Phase1〜5）</span>
+      <span style="font-weight:900;color:var(--accent)">〜${totalAmt}万円</span>
+    </div>
+    ${budgetLim > 0 && budgetLim < totalAmt ? `<div class="alert-box ab-warn" style="margin-top:10px;"><span>⚠️</span><span>入力された年間予算（${budgetLim}万円）は推奨投資額を下回っています。Phase1〜2の最優先対策（〜${Math.round(80*scaleMulti)}万円）から着手することを推奨します。</span></div>` : ''}`;
+
+  // ROI
+  const damageBase = ind.damage_base * scaleMulti; // 万円
+  const prob30 = loc.prob_30yr;
+  const annualProb = prob30 / 30 / 100;
+  const annualLoss = Math.round(damageBase * annualProb);
+  const reduction = Math.round(annualLoss * 0.5);
+  const annualInvest = Math.round(totalAmt / 3 + items[5].amount); // 3年償却+年間
+  const payback = annualInvest > 0 ? (annualInvest / reduction).toFixed(1) : '—';
+
+  document.getElementById('roi-annual-loss').textContent = `${annualLoss}万円/年`;
+  document.getElementById('roi-reduction').textContent   = `${reduction}万円/年`;
+  document.getElementById('roi-payback').textContent     = `${payback}年`;
+
+  document.getElementById('roi-detail').innerHTML = `
+    <strong>試算根拠</strong><br>
+    ・想定被害額（1ヶ月操業停止）：${damageBase.toFixed(0)}万円（${ind.label}・${scale === 'small' ? '小規模' : scale === 'mid' ? '中規模' : '大規模'}）<br>
+    ・年間地震発生確率：${loc.prob_30yr}%（30年以内）÷ 30 ≈ ${(annualProb * 100).toFixed(1)}%/年<br>
+    ・年間期待損失：${damageBase.toFixed(0)}万円 × ${(annualProb * 100).toFixed(1)}% = ${annualLoss}万円<br>
+    ・BCP整備によるリスク低減率：50%（内閣府調査ベース）<br>
+    ・年間リスク低減額：${reduction}万円 / 年間防災投資${annualInvest}万円 → 回収期間 ${payback}年
+  `;
+  window._calcData = { totalAmt, annualLoss, reduction, payback, annualInvest, scaleMulti };
+}
+
+// ======================== PHASE 3 RENDER ========================
+function renderPhase3(company, ind, loc, scale, status, budgetLim) {
+  const d = window._calcData || {};
+  const totalAmt = d.totalAmt || 0;
+  const scaleMulti = d.scaleMulti || 1;
+
+  const denials = [
+    {
+      q: '【コスト否定】「この予算は本当に必要か？半額でも同じ効果が得られるのではないか」',
+      verdict: 'partial',
+      label: '部分的に受け入れる',
+      text: `Phase1〜2の最優先対策（〜${Math.round(80*scaleMulti)}万円）は必須。Phase5（BCP文書策定）は内製で代替可能で外部委託費用を50%削減できる。<strong>最低限ラインは${Math.round(totalAmt*0.55)}万円</strong>で人命保護・法令遵守を達成可能。`
+    },
+    {
+      q: '【優先度否定】「CRITICALにした根拠は正しいか？業種・立地の特殊性を見落としていないか」',
+      verdict: 'reject',
+      label: '反証する',
+      text: `${ind.label}・${loc.label}という組み合わせは地震リスクが標準より${ind.urgency_bonus + loc.urgency_bonus > 0 ? '高く' : '同程度で'}、優先度スコアに業種・地域補正を加算済み。スコアリング根拠は開示済みであり恣意的判断はない。`
+    },
+    {
+      q: '【実現性否定】「この計画を実行できる人材・時間・意欲が社内に本当に存在するか」',
+      verdict: 'partial',
+      label: '部分的に受け入れる',
+      text: `${status === 'zero' ? '現状ゼロスタートのため、外部コンサルタント活用（初年度30〜50万円）を強く推奨。' : '一部既存対策があるため、追加工数は限定的。'}Phase1の対策は総務部担当者1名・週2時間で完遂可能な内容に絞っている。`
+    },
+    {
+      q: '【効果否定】「備蓄・BCP整備で本当に廃業を防げるのか？根拠データは古くないか」',
+      verdict: 'reject',
+      label: '反証する',
+      text: `中小企業庁（2024年）：BCP策定企業の災害後事業継続率は未策定企業の2.3倍。内閣府（2025年）：BCP整備企業の復旧期間は平均42%短縮。データは最新であり効果の根拠は十分。`
+    },
+    {
+      q: '【競合否定】「他にもっと費用対効果の高い経営投資があるのではないか」',
+      verdict: 'reject',
+      label: '反証する',
+      text: `防災投資のROIは${(d.reduction / d.annualInvest).toFixed(1)}倍（試算値）。一般的な設備投資ROIの1.5〜2倍を上回る。さらに法令義務対応・保険料削減・取引先信頼向上という非財務価値を含むと実質ROIはさらに高い。`
+    },
+    {
+      q: '【タイミング否定】「今すぐやる必要があるか？1年後でも遅くはないか」',
+      verdict: 'reject',
+      label: '反証する',
+      text: `地震はいつ発生するか予測不能。Phase1の法令義務対応（避難経路・防火管理者）は<strong>法令上今すぐ必要</strong>であり、遅延は行政処分リスク。「来年から」という判断自体がリスク要因。`
+    },
+    {
+      q: '【法令解釈否定】「法令解釈は正確か？過剰コンプライアンスになっていないか」',
+      verdict: 'partial',
+      label: '部分的に受け入れる',
+      text: `消防法・労安法の義務対応は過剰でなく必要最低限。ただし帰宅困難者対策条例（東京都のみ）は東京都外の企業には適用不要。所在地に合わせた法令の取捨選択が必要。`
+    },
+    {
+      q: '【前提否定】「都市直下型地震という前提は適切か？他の災害リスクを軽視していないか」',
+      verdict: 'accept',
+      label: '受け入れる',
+      text: `${loc.label}では地震リスクが最優先だが、水害・台風・感染症等の複合リスクも実在する。地震対策の多くは他の災害にも転用可能だが、<strong>水害リスクが高いエリアは浸水対策を追加検討すること</strong>を計画に明記する。`
+    }
+  ];
+
+  const clsMap = { partial:'resolved-partial', reject:'resolved-reject', accept:'resolved-accept' };
+  const tagCls = { partial:'vt-partial', reject:'vt-reject', accept:'vt-accept' };
+  const tagLabel = { partial:'部分的に受け入れる', reject:'反証する→維持', accept:'受け入れる→修正' };
+
+  document.getElementById('denial-grid').innerHTML = denials.map((d, i) => `
+    <div class="denial-item ${clsMap[d.verdict]}">
+      <div class="denial-num">DENIAL ${String(i+1).padStart(2,'0')}</div>
+      <div class="denial-question">${d.q}</div>
+      <span class="verdict-tag ${tagCls[d.verdict]}">${tagLabel[d.verdict]}</span>
+      <div class="denial-verdict">${d.text}</div>
+    </div>`).join('');
+}
+
+// ======================== PHASE 4 RENDER ========================
+function renderPhase4(company, ind, loc, scale, status, scaleMulti) {
+  const d = window._calcData || {};
+  const totalAmt = d.totalAmt || 0;
+
+  // 5項目スコアリング
+  const items = [
+    {
+      name: 'リスク低減効果', max: 30, weight: 30,
+      score: loc.urgency_bonus >= 2 ? 28 : loc.urgency_bonus === 1 ? 25 : 22,
+      reason: `${loc.label}における地震発生確率${LOCATION_DATA[document.getElementById('location').value].prob_30yr}%を踏まえると、Phase1〜5の対策でリスクを50%低減できる見込み。`,
+      color: 'var(--red)'
+    },
+    {
+      name: '予算妥当性', max: 25, weight: 25,
+      score: d.payback && parseFloat(d.payback) <= 3 ? 23 : parseFloat(d.payback) <= 5 ? 20 : 16,
+      reason: `投資回収期間${d.payback}年。企業の平均設備投資回収期間（5〜7年）と比較して${parseFloat(d.payback) <= 5 ? '妥当な' : 'やや長い'}水準。`,
+      color: 'var(--gold)'
+    },
+    {
+      name: '実行可能性', max: 20, weight: 20,
+      score: status === 'zero' ? 14 : status === 'partial' ? 17 : 19,
+      reason: `現状「${{'zero':'ほぼゼロ','partial':'一部実施済み','advanced':'かなり整備済み'}[status]}」のため、実行工数を適切に見積もる必要がある。総務部主導で${status === 'zero' ? '段階的に' : '効率的に'}実施可能。`,
+      color: 'var(--blue)'
+    },
+    {
+      name: '法令遵守', max: 15, weight: 15,
+      score: 13,
+      reason: '消防法・労働安全衛生法の義務事項はPhase1〜2で完全充足。東京都条例対応もPhase3で対応済み。',
+      color: 'var(--green)'
+    },
+    {
+      name: 'ステークホルダー価値', max: 10, weight: 10,
+      score: 8,
+      reason: '従業員の安心感・取引先からの信頼・採用ブランディングへの貢献。BCPは非財務情報開示でもESG評価に直結。',
+      color: 'var(--purple)'
+    }
+  ];
+
+  const totalScore = items.reduce((s, i) => s + i.score, 0);
+  let verdict, icon, vcolor;
+  if      (totalScore >= 85) { verdict = '✅ 強く推奨（Go）';   icon = '✅'; vcolor = 'var(--green)'; }
+  else if (totalScore >= 70) { verdict = '✅ 推奨（Go）';       icon = '✅'; vcolor = 'var(--green)'; }
+  else if (totalScore >= 55) { verdict = '⚠️ 条件付き推奨';     icon = '⚠️'; vcolor = 'var(--yellow)'; }
+  else if (totalScore >= 40) { verdict = '🔄 計画見直し必要';   icon = '🔄'; vcolor = 'var(--orange)'; }
+  else                       { verdict = '❌ 非推奨（No-Go）';  icon = '❌'; vcolor = 'var(--red)'; }
+
+  document.getElementById('total-score-mini').textContent = totalScore;
+  const pct = totalScore;
+
+  document.getElementById('judge-main').innerHTML = `
+    <div class="judge-verdict-panel">
+      <div style="font-size:52px;margin-bottom:8px;">${icon}</div>
+      <div class="judge-verdict-label">最終判定</div>
+      <div class="judge-verdict-text" style="color:${vcolor}">${verdict}</div>
+      <div class="judge-score-ring" style="--pct:${pct}">
+        <div class="judge-score-val">${totalScore}</div>
+      </div>
+      <div class="judge-score-unit">/ 100点</div>
+    </div>
+    <div class="judge-items">
+      ${items.map(item => `
+        <div class="judge-item">
+          <div class="judge-item-header">
+            <div class="judge-item-name">${item.name}</div>
+            <div class="judge-item-score" style="color:${item.color}">${item.score}/${item.max}</div>
+          </div>
+          <div class="judge-bar-wrap">
+            <div class="judge-bar" style="width:${(item.score/item.max*100).toFixed(0)}%;background:${item.color};"></div>
+          </div>
+          <div class="judge-item-reason">${item.reason}</div>
+        </div>`).join('')}
+    </div>`;
+
+  // Recommendations
+  document.getElementById('rec-card-wrap').style.display = 'block';
+  document.getElementById('rec-grid').innerHTML = `
+    <div class="rec-card rc-exec">
+      <div class="rec-card-title">👔 経営層への提言（3点）</div>
+      <div class="rec-item"><span class="rec-num">1</span>今期中に防災予算${Math.round(totalAmt*0.4)}万円を承認し、Phase1・2を着手する</div>
+      <div class="rec-item"><span class="rec-num">2</span>防災管理者を正式に選任・辞令発令し、防災委員会を設置する（消防法義務）</div>
+      <div class="rec-item"><span class="rec-num">3</span>事業継続計画（BCP）を代表者名で策定し、主要取引先・金融機関に開示する</div>
+    </div>
+    <div class="rec-card rc-soumu">
+      <div class="rec-card-title">📋 総務部への実行指示（3点）</div>
+      <div class="rec-item"><span class="rec-num">1</span>今週中に避難経路図・緊急連絡網を更新し、安否確認ツールの比較選定を開始する</div>
+      <div class="rec-item"><span class="rec-num">2</span>今月中に備蓄品の必要数量を算出し、発注・保管スペースを確保する</div>
+      <div class="rec-item"><span class="rec-num">3</span>四半期以内にPhase1〜2の全対策を完了し、経営会議で進捗を報告する</div>
+    </div>`;
+}
+
+// ======================== PHASE 5 RENDER ========================
+function renderPhase5(company) {
+  const score = parseInt(document.getElementById('total-score-mini').textContent) || 0;
+  const verdict = score >= 70 ? '✅ Go' : score >= 55 ? '⚠️ 条件付きGo' : '🔄 要見直し';
+
+  document.getElementById('phase5-content').innerHTML = `
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">最終ジャッジ結果</div>
+      <div style="font-size:16px;font-weight:700;">${company} — ${verdict}（${score}/100点）</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">全否定フェーズを通過した強化済みBCP計画。下記の実行ロードマップで具体的な対策チェックリストを進めてください。</div>
+    </div>
+    <div style="font-size:13px;color:var(--muted);">
+      ▸ 実行ロードマップ（チェックリスト形式）は「防災ロードマップを開く」から確認できます。<br>
+      ▸ このページのスコア・判定結果は印刷（Ctrl+P）でPDF出力可能です。
+    </div>`;
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
