@@ -523,8 +523,8 @@ main{max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
   </div>
 
   <div class="link-back">
-    <a href="index.html" class="lbtn primary">🏢 防災ロードマップ（チェックリスト）を開く →</a>
-    <a href="design-notes.html" class="lbtn">✨ 設計の工夫ポイントを見る</a>
+    <a href="企業防災ロードマップ_都市直下型地震.html" class="lbtn primary">🏢 防災ロードマップ（チェックリスト）を開く →</a>
+    <a href="design-notes.html" class="lbtn">✨ 設計の工夫ポイントを見る →</a>
   </div>
 </div>
 
@@ -597,6 +597,7 @@ function runAgent() {
 
   document.getElementById('phase1-alert').style.display = 'none';
   document.getElementById('phase0').scrollIntoView({ behavior: 'smooth' });
+  collectExportData();
 }
 
 // ======================== PHASE 1 RENDER ========================
@@ -981,14 +982,6 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ======================== 元のrunAgent拡張 ========================
-const _origRunAgent = runAgent;
-function runAgent() {
-  _origRunAgent();
-  // runAgent 完了後にエクスポートデータを収集
-  setTimeout(collectExportData, 100);
 }
 
 function collectExportData() {
