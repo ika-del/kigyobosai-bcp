@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使い方ガイド｜BCP構築ツールセット</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090f;--s1:#11131c;--s2:#181b27;--border:#272b42;
+  --text:#e2e6f3;--muted:#6b769a;--accent:#6366f1;
+  --red:#ff4d6d;--orange:#ff8c42;--yellow:#f5c842;
+  --green:#3ddc97;--blue:#4db8ff;--gold:#f0b429;
+  --red-bg:#250d17;--orange-bg:#25180a;--green-bg:#091e14;--gold-bg:#221a07;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-size:13px;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.topbar-links{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+.tl{font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all .2s;white-space:nowrap;}
+.tl:hover{border-color:var(--accent);color:var(--text);}
+.tl.go{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.hero{padding:56px 28px 40px;text-align:center;background:linear-gradient(150deg,var(--s1),var(--bg));border-bottom:1px solid var(--border);}
+.hero h1{font-size:clamp(22px,3.5vw,40px);font-weight:900;line-height:1.25;background:linear-gradient(120deg,#fff 20%,var(--accent) 60%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+.hero-sub{font-size:14px;color:var(--muted);max-width:480px;margin:0 auto 28px;}
+
+/* TOOLS MAP */
+.tools-map{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:0 28px 40px;background:linear-gradient(to bottom,var(--bg),var(--s1));border-bottom:1px solid var(--border);}
+.tool-node{background:var(--s2);border:2px solid var(--border);border-radius:16px;padding:16px 20px;text-align:center;width:160px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);}
+.tool-node:hover{transform:translateY(-3px);}
+.tool-node.t-agent{border-color:var(--accent);}
+.tool-node.t-deadline{border-color:var(--orange);}
+.tool-node.t-roadmap{border-color:var(--green);}
+.tool-node.t-guide{border-color:var(--gold);}
+.tool-icon{font-size:28px;margin-bottom:6px;}
+.tool-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.tool-desc{font-size:10px;color:var(--muted);}
+.map-arrow{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 8px;color:var(--muted);font-size:11px;}
+.map-arrow-line{font-size:18px;}
+.map-arrow-label{font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap;}
+
+main{max-width:860px;margin:0 auto;padding:40px 28px 80px;}
+
+/* STEP */
+.step-section{margin-bottom:40px;}
+.step-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.step-num{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex-shrink:0;}
+.sn1{background:rgba(99,102,241,.15);border:2px solid var(--accent);color:var(--accent);}
+.sn2{background:rgba(255,140,66,.1);border:2px solid var(--orange);color:var(--orange);}
+.sn3{background:rgba(61,220,151,.1);border:2px solid var(--green);color:var(--green);}
+.sn4{background:rgba(240,180,41,.1);border:2px solid var(--gold);color:var(--gold);}
+.step-title-area{}
+.step-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.step-title{font-size:20px;font-weight:800;}
+.step-sub{font-size:12px;color:var(--muted);}
+
+.step-body{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px 24px;}
+
+/* ACTION LIST */
+.action-list{display:flex;flex-direction:column;gap:10px;}
+.action-item{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;}
+.ai-num{width:24px;height:24px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ai-num.on{background:var(--orange);}
+.ai-num.og{background:var(--green);}
+.ai-num.gg{background:var(--gold);}
+.ai-body{}
+.ai-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.ai-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* SCREENSHOT MOCK */
+.mock{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;font-size:11px;}
+.mock-bar{background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:6px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;color:var(--muted);}
+.mock-content{display:flex;flex-direction:column;gap:6px;}
+.mock-field{background:var(--s1);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;}
+.mock-field.filled{border-color:var(--accent);color:var(--text);}
+.mock-btn{background:linear-gradient(90deg,var(--accent),var(--blue));border:none;border-radius:7px;padding:8px 16px;color:#fff;font-size:12px;font-weight:700;margin-top:6px;cursor:pointer;font-family:inherit;}
+.mock-result{background:var(--green-bg);border:1px solid var(--green);border-radius:6px;padding:8px 12px;color:var(--green);font-size:11px;font-weight:700;}
+.mock-warn{background:var(--red-bg);border:1px solid var(--red);border-radius:6px;padding:8px 12px;color:var(--red);font-size:11px;font-weight:700;}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.flow-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;white-space:nowrap;}
+.flow-box.fa{border-color:var(--accent);color:var(--accent);}
+.flow-box.fo{border-color:var(--orange);color:var(--orange);}
+.flow-box.fg{border-color:var(--green);color:var(--green);}
+.flow-box.fl{border-color:var(--gold);color:var(--gold);}
+.flow-arr{color:var(--muted);}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:8px;}
+.faq-item{background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.faq-q{padding:12px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.faq-q:hover{background:var(--s2);}
+.faq-a{padding:0 16px 12px;font-size:12px;color:var(--muted);line-height:1.7;display:none;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-arrow{transition:transform .2s;}
+
+/* CTA */
+.cta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:32px;}
+@media(max-width:600px){.cta-grid{grid-template-columns:1fr;}}
+.cta-card{border-radius:14px;padding:20px;text-decoration:none;color:var(--text);transition:transform .2s;border:1px solid var(--border);}
+.cta-card:hover{transform:translateY(-2px);}
+.cta-card.c-agent{background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.3);}
+.cta-card.c-deadline{background:rgba(255,140,66,.06);border-color:rgba(255,140,66,.25);}
+.cta-card.c-roadmap{background:rgba(61,220,151,.06);border-color:rgba(61,220,151,.2);}
+.cta-card.c-notes{background:rgba(240,180,41,.06);border-color:rgba(240,180,41,.2);}
+.cta-icon{font-size:24px;margin-bottom:8px;}
+.cta-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.cta-desc{font-size:11px;color:var(--muted);}
+.cta-url{font-size:10px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">📖 使い方ガイド</div>
+  <div class="topbar-links">
+    <a href="agent.html" class="tl go">⚡ 今すぐ始める →</a>
+    <a href="deadline.html" class="tl">📅 期限管理</a>
+    <a href="企業防災ロードマップ_都市直下型地震.html" class="tl">🏢 ロードマップ</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>BCP構築ツールセット<br>使い方ガイド</h1>
+  <p class="hero-sub">4つのツールがひとつの流れで繋がっています。<br>まず <strong>BCPエージェント</strong> から始めてください。</p>
+</div>
+
+<!-- TOOLS MAP -->
+<div class="tools-map">
+  <a href="agent.html" class="tool-node t-agent">
+    <div class="tool-icon">⚡</div>
+    <div class="tool-name">BCPエージェント</div>
+    <div class="tool-desc">①まずここから</div>
+  </a>
+  <div class="map-arrow">
+    <div class="map-arrow-line">→</div>
+    <div class="map-arrow-label">プロファイル<br>自動連携</div>
+  </div>
+  <a href="企業防災ロードマップ_都市直下型地震.html" class="tool-node t-roadmap">
+    <div class="tool-icon">🏢</div>
+    <div class="tool-name">防災ロードマップ</div>
+    <div class="tool-desc">②チェックリスト実行</div>
+  </a>
+  <div class="map-arrow">
+    <div class="map-arrow-line" style="font-size:14px;">↑</div>
+    <div class="map-arrow-label">期限予算<br>連携</div>
+  </div>
+  <a href="deadline.html" class="tool-node t-deadline">
+    <div class="tool-icon">📅</div>
+    <div class="tool-name">期限管理ツール</div>
+    <div class="tool-desc">③オプション入力</div>
+  </a>
+  <div class="map-arrow">
+    <div class="map-arrow-line">→</div>
+    <div class="map-arrow-label">設計<br>根拠</div>
+  </div>
+  <a href="design-notes.html" class="tool-node t-guide">
+    <div class="tool-icon">✨</div>
+    <div class="tool-name">設計の工夫</div>
+    <div class="tool-desc">参考資料</div>
+  </a>
+</div>
+
+<main>
+
+<!-- STEP 1 -->
+<div class="step-section" id="step1">
+  <div class="step-header">
+    <div class="step-num sn1">1</div>
+    <div class="step-title-area">
+      <div class="step-eyebrow">STEP 01 — BCPエージェント</div>
+      <div class="step-title">会社の情報を入力して「自動計算」する</div>
+      <div class="step-sub">所要時間：約 2〜3分</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="action-list">
+      <div class="action-item">
+        <div class="ai-num">1</div>
+        <div class="ai-body">
+          <div class="ai-title"><a href="agent.html" style="color:var(--accent)">agent.html</a> を開く</div>
+          <div class="ai-desc">「Phase 00 — 企業プロファイリング」のフォームが最初に表示されます。</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num">2</div>
+        <div class="ai-body">
+          <div class="ai-title">6項目を入力する</div>
+          <div class="ai-desc">企業名・業種・従業員数・所在地・対策状況・年間予算感を入力します。<strong>わからない項目はデフォルトのままでOK</strong>です。</div>
+          <div class="mock" style="margin-top:10px;">
+            <div class="mock-bar">📋 Phase 00 — 企業プロファイリング</div>
+            <div class="mock-content">
+              <div class="mock-field filled">🏢 企業名：株式会社〇〇</div>
+              <div class="mock-field filled">🏭 業種：IT・SaaS・テック</div>
+              <div class="mock-field filled">👥 従業員数：100名</div>
+              <div class="mock-field filled">📍 所在地：東京都（23区内）</div>
+              <div class="mock-field" style="color:var(--muted);">現状・予算はデフォルトでもOK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num">3</div>
+        <div class="ai-body">
+          <div class="ai-title">「⚡ 全フェーズを自動計算する」を押す</div>
+          <div class="ai-desc">1回押すだけで Phase 1〜5 が全て自動計算されます。</div>
+          <div class="flow-row">
+            <div class="flow-box fa">P1 優先度スコア</div>
+            <div class="flow-arr">→</div>
+            <div class="flow-box fa">P2 予算・ROI</div>
+            <div class="flow-arr">→</div>
+            <div class="flow-box fa">P3 全否定</div>
+            <div class="flow-arr">→</div>
+            <div class="flow-box fa">P4 最終ジャッジ</div>
+          </div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num">4</div>
+        <div class="ai-body">
+          <div class="ai-title">結果を確認する</div>
+          <div class="ai-desc">
+            <strong>P1：</strong>どの対策を先にやるべきか（🔴CRITICAL〜🟢LOWで優先度表示）<br>
+            <strong>P2：</strong>フェーズごとの投資額・ROI・投資回収期間<br>
+            <strong>P3：</strong>「本当にこの計画でいいのか？」を8つの観点で批判的検証<br>
+            <strong>P4：</strong>100点採点でGo/No-Go判定 + 経営層への提言
+          </div>
+          <div class="mock" style="margin-top:8px;">
+            <div class="mock-result">✅ 推奨（Go） 82/100点 — 今期中に Phase1・2 の着手を推奨</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:12px 14px;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;font-size:12px;">
+      <strong style="color:var(--gold);">💡 自動でロードマップに連携されます</strong><br>
+      計算が終わると「🔗 プロファイルを防災ロードマップに連携しました」と表示され、<br>次のロードマップを開くと会社名・業種・判定スコアが自動反映されます。
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step-section" id="step2">
+  <div class="step-header">
+    <div class="step-num sn3">2</div>
+    <div class="step-title-area">
+      <div class="step-eyebrow">STEP 02 — 防災ロードマップ</div>
+      <div class="step-title">チェックリストで対策を進める</div>
+      <div class="step-sub">所要時間：対策が進むたびに更新（継続利用）</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="action-list">
+      <div class="action-item">
+        <div class="ai-num og">1</div>
+        <div class="ai-body">
+          <div class="ai-title"><a href="企業防災ロードマップ_都市直下型地震.html" style="color:var(--green)">ロードマップ</a> を開く</div>
+          <div class="ai-desc">Step 1 でエージェントを使った後に開くと、上部に<strong>「🔗 エージェント連携中」バナー</strong>が表示され、会社情報が反映されています。</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num og">2</div>
+        <div class="ai-body">
+          <div class="ai-title">ビューを切り替える</div>
+          <div class="ai-desc">
+            上部のトグルで表示モードを選べます：<br>
+            <strong>👔 経営層ビュー</strong>：投資額・リスク・法的責任・承認判断に必要な情報<br>
+            <strong>📋 総務部ビュー</strong>：ベンダー名・実施手順・法令根拠など実務情報
+          </div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num og">3</div>
+        <div class="ai-body">
+          <div class="ai-title">対策が完了したらクリックしてチェックを入れる</div>
+          <div class="ai-desc">各対策の行をクリックすると「✓」になります。進捗バーが自動で更新され、<strong>ページを閉じても状態が保存</strong>されます。</div>
+          <div class="mock" style="margin-top:8px;">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--green-bg);border:1px solid var(--green);border-radius:6px;font-size:11px;">
+              <span style="color:var(--green);font-weight:700;">✓</span>
+              <span>避難経路図の更新・掲示</span>
+              <span style="margin-left:auto;color:var(--green);font-size:10px;">完了</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num og">4</div>
+        <div class="ai-body">
+          <div class="ai-title">「⬇ エクスポート」で進捗を保存・共有する</div>
+          <div class="ai-desc">
+            上部バーの「⬇ エクスポート」ボタンから：<br>
+            • <strong>JSONダウンロード</strong>：進捗をファイルに保存（別デバイスや同僚に渡せる）<br>
+            • <strong>CSVダウンロード</strong>：Excelで開ける形式<br>
+            • <strong>PDF出力</strong>：報告書・会議資料に
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step-section" id="step3">
+  <div class="step-header">
+    <div class="step-num sn2">3</div>
+    <div class="step-title-area">
+      <div class="step-eyebrow">STEP 03 — 期限管理ツール（オプション）</div>
+      <div class="step-title">期限を入れると予算がより精度よく計算される</div>
+      <div class="step-sub">所要時間：約 5〜10分</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div style="background:var(--orange-bg);border:1px solid var(--orange);border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:14px;color:var(--orange);">
+      ⚡ これはオプションです。Step 1・2 だけでも十分使えます。
+    </div>
+    <div class="action-list">
+      <div class="action-item">
+        <div class="ai-num on">1</div>
+        <div class="ai-body">
+          <div class="ai-title"><a href="deadline.html" style="color:var(--orange)">deadline.html</a> を開く</div>
+          <div class="ai-desc">「法定義務プリセットを追加」から、法令で必須の対策をワンクリックで追加できます。</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num on">2</div>
+        <div class="ai-body">
+          <div class="ai-title">各対策の「期限日」と「見積コスト」を入力する</div>
+          <div class="ai-desc">期限までの残日数から<strong>緊急係数</strong>が自動計算されます。<br>
+          急いで調達するほど割増コストが掛かることが可視化されます。</div>
+          <div class="flow-row" style="margin-top:8px;">
+            <div class="flow-box fo">残30日以内</div>
+            <div class="flow-arr">→</div>
+            <div class="flow-box fo">×1.25（緊急調達）</div>
+            <div class="flow-arr">→</div>
+            <div class="flow-box fg">早期計画なら ×0.85</div>
+          </div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num on">3</div>
+        <div class="ai-body">
+          <div class="ai-title">「🔗 エージェントの予算化に反映する」を押す</div>
+          <div class="ai-desc">BCPエージェント（agent.html）のPhase 2に<strong>「期限調整済み四半期予算」</strong>が追加表示されます。エージェントを再計算するだけで反映されます。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4: IMPORT/EXPORT -->
+<div class="step-section" id="step4">
+  <div class="step-header">
+    <div class="step-num sn4">4</div>
+    <div class="step-title-area">
+      <div class="step-eyebrow">STEP 04 — 継続利用・チームでの共有</div>
+      <div class="step-title">インポート / エクスポートで状態を引き継ぐ</div>
+      <div class="step-sub">別のデバイス・別の担当者と進捗を共有できます</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="action-list">
+      <div class="action-item">
+        <div class="ai-num gg">エクスポート</div>
+        <div class="ai-body">
+          <div class="ai-title">各ツールの「⬇ エクスポート」→「JSONダウンロード」</div>
+          <div class="ai-desc">現在の入力・チェック状態が JSON ファイルとして保存されます。メールやチャットで担当者に渡せます。</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="ai-num gg">インポート</div>
+        <div class="ai-body">
+          <div class="ai-title">「⬇ エクスポート」→「JSONから復元」でファイルを選ぶ</div>
+          <div class="ai-desc">
+            <strong>BCPエージェント</strong>：JSONを読み込むと企業プロファイルが自動セットされ、全フェーズが再計算されます。<br>
+            <strong>防災ロードマップ</strong>：JSONを読み込むとチェック状態が復元されます。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="step-section">
+  <div class="step-header">
+    <div class="step-num" style="background:var(--s2);border:2px solid var(--border);">❓</div>
+    <div class="step-title-area">
+      <div class="step-title">よくある質問</div>
+    </div>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">入力したデータはどこに保存されますか？ <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">すべてお使いのブラウザの <strong>localStorage</strong>（端末内）に保存されます。サーバーには送信されません。ブラウザのデータを消去すると失われるため、大切なデータは「JSONダウンロード」で手元に保存してください。</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">ツールをオフラインで使えますか？ <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">一度開いた後はほぼオフラインでも動作します。ただし Google Fonts の読み込みにインターネット接続が必要なため、完全オフラインではフォントが変わって表示されます。機能的な問題はありません。</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">スマートフォンでも使えますか？ <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">はい、スマートフォン対応しています。ただし入力作業はPC推奨です。ロードマップのチェック確認・進捗閲覧はスマートフォンでも快適に使えます。</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">「全否定フェーズ」とは何ですか？ <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Phase 3 で、作成した計画を意図的に批判的な視点で検証するフェーズです。「この予算は本当に必要か」「今すぐやる必要があるか」など8つの角度から反論し、計画の穴を事前に発見します。最終的に「受け入れる / 部分修正 / 反証して維持」のいずれかで答えることで計画が強化されます。</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">どのツールから始めればいいですか？ <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><strong>BCPエージェント（agent.html）</strong>から始めてください。会社情報を入力して「自動計算」を押すだけで、5フェーズ全ての分析が完了し、防災ロードマップにも自動連携されます。期限管理ツールはオプションです。</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">出力結果を会議資料にしたいです <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">各ツールの「⬇ エクスポート」→「PDF出力（印刷）」から、ブラウザの印刷ダイアログが開きます。「PDFに保存」を選ぶとPDFファイルとして保存できます。印刷時は自動的に白背景に変換されます。</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="text-align:center;margin-bottom:24px;">
+  <div style="font-size:15px;font-weight:700;margin-bottom:16px;">さあ、始めましょう</div>
+</div>
+<div class="cta-grid">
+  <a href="agent.html" class="cta-card c-agent">
+    <div class="cta-icon">⚡</div>
+    <div class="cta-title">BCPエージェント</div>
+    <div class="cta-desc">まずここから。5フェーズで意思決定を支援。<br>入力→自動計算→Go/No-Go判定。</div>
+    <div class="cta-url">→ agent.html</div>
+  </a>
+  <a href="deadline.html" class="cta-card c-deadline">
+    <div class="cta-icon">📅</div>
+    <div class="cta-title">期限管理 × 予算化ツール</div>
+    <div class="cta-desc">期限日を入れると緊急係数を計算。<br>四半期別の必要予算を自動算出。</div>
+    <div class="cta-url">→ deadline.html</div>
+  </a>
+  <a href="企業防災ロードマップ_都市直下型地震.html" class="cta-card c-roadmap">
+    <div class="cta-icon">🏢</div>
+    <div class="cta-title">企業防災ロードマップ</div>
+    <div class="cta-desc">チェックリストで対策を実行・記録。<br>経営層・総務部それぞれのビューあり。</div>
+    <div class="cta-url">→ 企業防災ロードマップ_都市直下型地震.html</div>
+  </a>
+  <a href="design-notes.html" class="cta-card c-notes">
+    <div class="cta-icon">✨</div>
+    <div class="cta-title">設計の工夫ポイント</div>
+    <div class="cta-desc">このツールセットの設計思想と<br>工夫した7つのポイントを解説。</div>
+    <div class="cta-url">→ design-notes.html</div>
+  </a>
+</div>
+
+</main>
+</body>
+</html>
