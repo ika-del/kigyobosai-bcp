@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期限管理 × 予算化｜BCP期限コスト計算ツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090f;--s1:#11131c;--s2:#181b27;--s3:#1f2235;--border:#272b42;
+  --text:#e2e6f3;--muted:#6b769a;--accent:#6366f1;
+  --red:#ff4d6d;--red-bg:#250d17;
+  --orange:#ff8c42;--orange-bg:#25180a;
+  --yellow:#f5c842;--yellow-bg:#25210a;
+  --green:#3ddc97;--green-bg:#091e14;
+  --blue:#4db8ff;--blue-bg:#091c28;
+  --gold:#f0b429;--gold-bg:#221a07;
+  --purple:#a78bfa;--purple-bg:#150f28;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.65;}
+
+/* TOPBAR */
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;}
+.topbar-logo{font-size:13px;font-weight:900;background:linear-gradient(90deg,var(--orange),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;}
+.topbar-links{margin-left:auto;display:flex;gap:8px;}
+.topbar-link{font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all .2s;}
+.topbar-link:hover{border-color:var(--accent);color:var(--text);}
+.topbar-link.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* HERO */
+.hero{padding:44px 28px 36px;background:linear-gradient(150deg,var(--s1),var(--bg));border-bottom:1px solid var(--border);text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--orange);background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.25);padding:4px 14px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;}
+.hero h1{font-size:clamp(20px,3vw,36px);font-weight:900;line-height:1.25;background:linear-gradient(120deg,#fff 10%,var(--orange) 60%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+.hero-sub{font-size:13px;color:var(--muted);max-width:520px;margin:0 auto 24px;}
+.hero-flow{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+.hf{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;}
+.hf.c1{border-color:var(--orange);color:var(--orange);}
+.hf.c2{border-color:var(--gold);color:var(--gold);}
+.hf.c3{border-color:var(--green);color:var(--green);}
+.hf-arr{color:var(--border);}
+
+/* LAYOUT */
+main{max-width:1200px;margin:0 auto;padding:32px 28px 80px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
+@media(max-width:900px){main{grid-template-columns:1fr;}}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:16px;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* PRESET BUTTONS */
+.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.preset-btn{font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .18s;}
+.preset-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+/* ADD FORM */
+.add-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:12px;}
+@media(max-width:600px){.add-form{grid-template-columns:1fr 1fr;}}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:10px;font-weight:700;color:var(--muted);}
+.field input,.field select{background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:inherit;font-size:12px;padding:7px 10px;outline:none;transition:border-color .18s;width:100%;}
+.field input:focus,.field select:focus{border-color:var(--orange);}
+.field select option{background:var(--s2);}
+.add-btn{padding:7px 16px;border-radius:7px;border:none;background:var(--orange);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:34px;}
+.add-btn:hover{opacity:.85;}
+
+/* TASK TABLE */
+.task-table-wrap{overflow-x:auto;}
+.task-table{width:100%;border-collapse:collapse;font-size:11px;}
+.task-table th{background:var(--s2);color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+.task-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.task-table tr:last-child td{border-bottom:none;}
+.task-table tr:hover td{background:var(--s2);}
+.days-cell{font-weight:700;text-align:center;}
+.mult-cell{font-weight:900;text-align:center;}
+.cost-cell{font-weight:700;text-align:right;}
+.del-btn{background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;font-size:10px;padding:2px 7px;transition:all .18s;}
+.del-btn:hover{border-color:var(--red);color:var(--red);}
+.status-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.st-undone{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
+.st-wip{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange);}
+.st-done{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.st-hold{background:var(--s2);color:var(--muted);border:1px solid var(--border);}
+.legal-mark{color:var(--red);font-size:9px;font-weight:700;}
+.empty-row td{text-align:center;color:var(--muted);padding:24px;font-size:13px;}
+
+/* RIGHT PANEL */
+.sticky-panel{position:sticky;top:68px;}
+
+/* SUMMARY CARDS */
+.q-bucket{border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);}
+.q-bucket.q-over{background:var(--red-bg);border-color:var(--red);}
+.q-bucket.q-1{background:rgba(255,140,66,.06);border-color:rgba(255,140,66,.3);}
+.q-bucket.q-2{background:rgba(245,200,66,.05);border-color:rgba(245,200,66,.25);}
+.q-bucket.q-3{background:rgba(99,102,241,.05);border-color:rgba(99,102,241,.2);}
+.q-bucket.q-4{background:var(--green-bg);border-color:rgba(61,220,151,.2);}
+.q-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.q-row{display:flex;justify-content:space-between;align-items:baseline;}
+.q-count{font-size:11px;color:var(--muted);}
+.q-amount{font-size:18px;font-weight:900;}
+.q-amount small{font-size:11px;font-weight:400;}
+
+.delta-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.delta-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border);}
+.delta-row:last-child{border-bottom:none;font-weight:700;font-size:13px;}
+.delta-plus{color:var(--red);}
+
+.sync-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--orange),var(--gold));color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;margin-bottom:8px;}
+.sync-btn:hover{opacity:.85;}
+.sync-btn:disabled{opacity:.4;cursor:not-allowed;}
+.sync-note{font-size:10px;color:var(--muted);text-align:center;}
+.synced-badge{display:none;background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:var(--green);text-align:center;margin-bottom:8px;}
+.synced-badge.show{display:block;}
+
+/* URGENCY LEGEND */
+.legend{display:grid;grid-template-columns:1fr;gap:4px;font-size:11px;}
+.legend-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:var(--s2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:9px 20px;font-size:12px;font-weight:700;color:var(--green);z-index:999;opacity:0;transition:all .3s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">📅 期限管理 × 予算化</div>
+  <div class="topbar-links">
+    <a href="agent.html" class="topbar-link">⚡ BCPエージェント</a>
+    <a href="企業防災ロードマップ_都市直下型地震.html" class="topbar-link">🏢 ロードマップ</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">⏱ Deadline × Budget Integration</div>
+  <h1>期限管理 × 予算化<br>コスト自動計算ツール</h1>
+  <p class="hero-sub">期限までの残日数から「緊急係数」を計算し、四半期別の必要予算を自動算出。BCPエージェントと連携します。</p>
+  <div class="hero-flow">
+    <div class="hf c1">📅 期限を入力</div>
+    <div class="hf-arr">→</div>
+    <div class="hf c2">⚡ 緊急係数を自動計算</div>
+    <div class="hf-arr">→</div>
+    <div class="hf c3">💴 四半期予算に反映</div>
+    <div class="hf-arr">→</div>
+    <div class="hf" style="border-color:var(--accent);color:var(--accent);">🔗 エージェントに連携</div>
+  </div>
+</div>
+
+<main>
+<!-- LEFT: INPUT -->
+<div>
+  <!-- PRESET -->
+  <div class="card">
+    <div class="card-title">法定義務プリセットを追加</div>
+    <div class="preset-row" id="preset-row"></div>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="card">
+    <div class="card-title">カスタム対策を追加</div>
+    <div class="add-form">
+      <div class="field">
+        <label>対策名</label>
+        <input type="text" id="f-name" placeholder="例：安否確認システム導入">
+      </div>
+      <div class="field">
+        <label>期限日</label>
+        <input type="date" id="f-deadline">
+      </div>
+      <div class="field">
+        <label>見積（万円）</label>
+        <input type="number" id="f-cost" placeholder="30" min="0" step="0.5">
+      </div>
+      <div class="field">
+        <label>担当</label>
+        <select id="f-dept">
+          <option value="総務部">総務部</option>
+          <option value="経営層">経営層</option>
+          <option value="情報システム">情報システム</option>
+          <option value="施設管理">施設管理</option>
+          <option value="人事">人事</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>現状</label>
+        <select id="f-status">
+          <option value="未着手">未着手</option>
+          <option value="進行中">進行中</option>
+          <option value="保留">保留</option>
+          <option value="完了">完了</option>
+        </select>
+      </div>
+      <button class="add-btn" onclick="addTask()">＋ 追加</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:10px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="checkbox" id="f-legal"> <span style="color:var(--red);font-weight:700;">🔴 法令義務</span>（係数 +0.1）
+      </label>
+    </div>
+  </div>
+
+  <!-- TASK TABLE -->
+  <div class="card">
+    <div class="card-title">期限タスク一覧</div>
+    <!-- LEGEND -->
+    <div class="legend" style="margin-bottom:14px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;">緊急係数の凡例</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+        <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div>超過 ×1.5</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--orange)"></div>〜30日 ×1.25</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--yellow)"></div>〜90日 ×1.10</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent)"></div>〜180日 ×1.00</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--blue)"></div>〜365日 ×0.90</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div>365日超 ×0.85</div>
+      </div>
+    </div>
+    <div class="task-table-wrap">
+      <table class="task-table">
+        <thead>
+          <tr>
+            <th>対策名</th>
+            <th>期限日</th>
+            <th style="text-align:center;">残日数</th>
+            <th style="text-align:center;">緊急係数</th>
+            <th>担当</th>
+            <th>現状</th>
+            <th style="text-align:right;">見積(万)</th>
+            <th style="text-align:right;">調整後(万)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="task-tbody">
+          <tr class="empty-row"><td colspan="9">プリセットまたはカスタムで対策を追加してください</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT: SUMMARY -->
+<div class="sticky-panel">
+  <div class="card">
+    <div class="card-title">四半期別 必要予算</div>
+    <div class="q-bucket q-over">
+      <div class="q-label" style="color:var(--red)">⚠️ 期限超過（緊急対応）</div>
+      <div class="q-row">
+        <span class="q-count" id="q-over-count">0件</span>
+        <span class="q-amount" style="color:var(--red)" id="q-over-amt">0<small>万円</small></span>
+      </div>
+    </div>
+    <div class="q-bucket q-1">
+      <div class="q-label" style="color:var(--orange)">🔴 Q1（〜90日・当期必須）</div>
+      <div class="q-row">
+        <span class="q-count" id="q1-count">0件</span>
+        <span class="q-amount" style="color:var(--orange)" id="q1-amt">0<small>万円</small></span>
+      </div>
+    </div>
+    <div class="q-bucket q-2">
+      <div class="q-label" style="color:var(--yellow)">🟠 Q2（91〜180日）</div>
+      <div class="q-row">
+        <span class="q-count" id="q2-count">0件</span>
+        <span class="q-amount" style="color:var(--yellow)" id="q2-amt">0<small>万円</small></span>
+      </div>
+    </div>
+    <div class="q-bucket q-3">
+      <div class="q-label" style="color:var(--accent)">🟡 Q3（181〜365日）</div>
+      <div class="q-row">
+        <span class="q-count" id="q3-count">0件</span>
+        <span class="q-amount" style="color:var(--accent)" id="q3-amt">0<small>万円</small></span>
+      </div>
+    </div>
+    <div class="q-bucket q-4">
+      <div class="q-label" style="color:var(--green)">🟢 Q4（365日超）</div>
+      <div class="q-row">
+        <span class="q-count" id="q4-count">0件</span>
+        <span class="q-amount" style="color:var(--green)" id="q4-amt">0<small>万円</small></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">緊急係数の影響額</div>
+    <div class="delta-card">
+      <div class="delta-row"><span>係数適用前（見積合計）</span><span id="base-total">0万円</span></div>
+      <div class="delta-row"><span>係数適用後（調整後合計）</span><span id="adj-total">0万円</span></div>
+      <div class="delta-row"><span>緊急コスト増分</span><span class="delta-plus" id="delta-amt">+0万円</span></div>
+      <div class="delta-row" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);"><span>増加率</span><span class="delta-plus" id="delta-pct">+0%</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">BCPエージェントに連携</div>
+    <div class="synced-badge" id="synced-badge">🔗 エージェントに連携済み</div>
+    <button class="sync-btn" id="sync-btn" onclick="syncToAgent()" disabled>
+      🔗 エージェントの予算化に反映する
+    </button>
+    <div class="sync-note">連携後、BCPエージェントのPhase 2に期限調整予算が反映されます</div>
+  </div>
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ======================== STATE ========================
+let tasks = JSON.parse(localStorage.getItem('bcp-deadline-tasks') || '[]');
+
+// ======================== URGENCY ========================
+function urgencyMultiplier(days, isLegal) {
+  let m;
+  if      (days < 0)    m = 1.50;
+  else if (days <= 30)  m = 1.25;
+  else if (days <= 90)  m = 1.10;
+  else if (days <= 180) m = 1.00;
+  else if (days <= 365) m = 0.90;
+  else                  m = 0.85;
+  if (isLegal) m = Math.min(m + 0.10, 1.60);
+  return m;
+}
+
+function daysUntil(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr);
+  return Math.round((target - today) / 86400000);
+}
+
+function daysColor(days) {
+  if (days < 0)    return 'var(--red)';
+  if (days <= 30)  return 'var(--orange)';
+  if (days <= 90)  return 'var(--yellow)';
+  if (days <= 180) return 'var(--accent)';
+  if (days <= 365) return 'var(--blue)';
+  return 'var(--green)';
+}
+
+function multColor(m) {
+  if (m >= 1.4)  return 'var(--red)';
+  if (m >= 1.2)  return 'var(--orange)';
+  if (m >= 1.05) return 'var(--yellow)';
+  if (m >= 0.95) return 'var(--accent)';
+  return 'var(--green)';
+}
+
+const STATUS_CLS = { '未着手':'st-undone','進行中':'st-wip','完了':'st-done','保留':'st-hold' };
+
+// ======================== PRESETS ========================
+const PRESETS = [
+  { name:'防火管理者選任', cost:5, dept:'総務部', legal:true, offsetDays:30 },
+  { name:'消防計画届出', cost:2, dept:'総務部', legal:true, offsetDays:90 },
+  { name:'避難訓練（第1回）', cost:15, dept:'総務部', legal:true, offsetDays:180 },
+  { name:'安否確認システム導入', cost:40, dept:'総務部', legal:false, offsetDays:60 },
+  { name:'帰宅困難者備蓄（3日分）', cost:80, dept:'施設管理', legal:true, offsetDays:180 },
+  { name:'クラウドバックアップ強化', cost:50, dept:'情報システム', legal:false, offsetDays:120 },
+  { name:'AED点検・救急箱整備', cost:10, dept:'総務部', legal:false, offsetDays:90 },
+  { name:'BCP文書策定', cost:100, dept:'経営層', legal:false, offsetDays:270 },
+  { name:'非常用発電機導入', cost:120, dept:'施設管理', legal:false, offsetDays:365 },
+  { name:'耐震診断実施', cost:80, dept:'施設管理', legal:false, offsetDays:365 },
+];
+
+function renderPresets() {
+  const row = document.getElementById('preset-row');
+  row.innerHTML = PRESETS.map((p,i) => `
+    <button class="preset-btn" onclick="addPreset(${i})">${p.legal?'🔴 ':''}${p.name}</button>
+  `).join('');
+}
+
+function addPreset(i) {
+  const p = PRESETS[i];
+  const today = new Date();
+  today.setDate(today.getDate() + p.offsetDays);
+  const deadline = today.toISOString().slice(0,10);
+  tasks.push({ id: Date.now(), name: p.name, deadline, cost: p.cost, dept: p.dept, status:'未着手', legal: p.legal });
+  save(); render();
+  showToast(`✅ "${p.name}" を追加しました`);
+}
+
+// ======================== ADD TASK ========================
+function addTask() {
+  const name     = document.getElementById('f-name').value.trim();
+  const deadline = document.getElementById('f-deadline').value;
+  const cost     = parseFloat(document.getElementById('f-cost').value) || 0;
+  const dept     = document.getElementById('f-dept').value;
+  const status   = document.getElementById('f-status').value;
+  const legal    = document.getElementById('f-legal').checked;
+  if (!name || !deadline) return showToast('⚠️ 対策名と期限日を入力してください');
+  tasks.push({ id: Date.now(), name, deadline, cost, dept, status, legal });
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-cost').value = '';
+  document.getElementById('f-legal').checked = false;
+  save(); render();
+  showToast(`✅ "${name}" を追加しました`);
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  save(); render();
+}
+
+// ======================== RENDER ========================
+function render() {
+  const tbody = document.getElementById('task-tbody');
+  if (tasks.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">プリセットまたはカスタムで対策を追加してください</td></tr>';
+    updateSummary([]);
+    return;
+  }
+
+  const enriched = tasks.map(t => {
+    const days = daysUntil(t.deadline);
+    const mult = urgencyMultiplier(days, t.legal);
+    const adj  = Math.round(t.cost * mult * 10) / 10;
+    return { ...t, days, mult, adj };
+  }).sort((a,b) => a.days - b.days);
+
+  tbody.innerHTML = enriched.map(t => `
+    <tr>
+      <td style="font-weight:500;max-width:180px;">
+        ${t.legal ? '<span class="legal-mark">🔴 法令 </span>' : ''}${t.name}
+      </td>
+      <td style="white-space:nowrap;font-size:11px;">${t.deadline}</td>
+      <td class="days-cell" style="color:${daysColor(t.days)}">
+        ${t.days < 0 ? '超過'+Math.abs(t.days)+'日' : t.days+'日'}
+      </td>
+      <td class="mult-cell" style="color:${multColor(t.mult)}">×${t.mult.toFixed(2)}</td>
+      <td style="font-size:11px;color:var(--muted);">${t.dept}</td>
+      <td><span class="status-badge ${STATUS_CLS[t.status]||'st-hold'}">${t.status}</span></td>
+      <td class="cost-cell" style="color:var(--muted);">${t.cost}</td>
+      <td class="cost-cell" style="color:${multColor(t.mult)};font-size:13px;">${t.adj}</td>
+      <td><button class="del-btn" onclick="deleteTask(${t.id})">×</button></td>
+    </tr>
+  `).join('');
+
+  updateSummary(enriched);
+}
+
+// ======================== SUMMARY ========================
+function updateSummary(enriched) {
+  const buckets = { over:[], q1:[], q2:[], q3:[], q4:[] };
+  enriched.forEach(t => {
+    if      (t.status === '完了') return;
+    if      (t.days < 0)    buckets.over.push(t);
+    else if (t.days <= 90)  buckets.q1.push(t);
+    else if (t.days <= 180) buckets.q2.push(t);
+    else if (t.days <= 365) buckets.q3.push(t);
+    else                    buckets.q4.push(t);
+  });
+
+  const sum = arr => arr.reduce((s,t) => s + t.adj, 0);
+  const fmt = v => Math.round(v * 10) / 10;
+
+  ['over','q1','q2','q3','q4'].forEach(k => {
+    const n = buckets[k].length;
+    const a = fmt(sum(buckets[k]));
+    document.getElementById(`q-${k==='over'?'over':k}-count`).textContent = `${n}件`;
+    document.getElementById(`q-${k==='over'?'over':k}-amt`).innerHTML = `${a}<small>万円</small>`;
+  });
+
+  const baseTotal = fmt(enriched.filter(t=>t.status!=='完了').reduce((s,t) => s + t.cost, 0));
+  const adjTotal  = fmt(enriched.filter(t=>t.status!=='完了').reduce((s,t) => s + t.adj, 0));
+  const delta     = fmt(adjTotal - baseTotal);
+  const pct       = baseTotal > 0 ? ((delta/baseTotal)*100).toFixed(1) : 0;
+
+  document.getElementById('base-total').textContent = `${baseTotal}万円`;
+  document.getElementById('adj-total').textContent  = `${adjTotal}万円`;
+  document.getElementById('delta-amt').textContent  = `+${delta}万円`;
+  document.getElementById('delta-pct').textContent  = `+${pct}%`;
+
+  const hasData = enriched.filter(t=>t.status!=='完了').length > 0;
+  document.getElementById('sync-btn').disabled = !hasData;
+}
+
+// ======================== SYNC TO AGENT ========================
+function syncToAgent() {
+  const enriched = tasks.map(t => {
+    const days = daysUntil(t.deadline);
+    const mult = urgencyMultiplier(days, t.legal);
+    return { ...t, days, mult, adj: Math.round(t.cost * mult * 10) / 10 };
+  }).filter(t => t.status !== '完了');
+
+  const active = enriched;
+  const sum = arr => arr.reduce((s,t) => s + t.adj, 0);
+  const baseTotal = active.reduce((s,t) => s + t.cost, 0);
+  const adjTotal  = active.reduce((s,t) => s + t.adj, 0);
+
+  const payload = {
+    tasks: active,
+    summary: {
+      q_overdue: { count: active.filter(t=>t.days<0).length, amount: sum(active.filter(t=>t.days<0)) },
+      q1: { count: active.filter(t=>t.days>=0&&t.days<=90).length,   amount: sum(active.filter(t=>t.days>=0&&t.days<=90)) },
+      q2: { count: active.filter(t=>t.days>90&&t.days<=180).length,  amount: sum(active.filter(t=>t.days>90&&t.days<=180)) },
+      q3: { count: active.filter(t=>t.days>180&&t.days<=365).length, amount: sum(active.filter(t=>t.days>180&&t.days<=365)) },
+      q4: { count: active.filter(t=>t.days>365).length,              amount: sum(active.filter(t=>t.days>365)) },
+      total_base: baseTotal, total_adjusted: adjTotal,
+      urgency_premium: adjTotal - baseTotal,
+      premium_pct: baseTotal > 0 ? ((adjTotal - baseTotal) / baseTotal * 100).toFixed(1) : 0
+    },
+    generated: new Date().toISOString()
+  };
+
+  localStorage.setItem('bcp-deadline-data', JSON.stringify(payload));
+  document.getElementById('synced-badge').classList.add('show');
+  showToast('🔗 BCPエージェントに期限予算データを連携しました');
+}
+
+// ======================== PERSIST ========================
+function save() {
+  localStorage.setItem('bcp-deadline-tasks', JSON.stringify(tasks));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ======================== INIT ========================
+// 期限入力のデフォルトを今日から90日後に
+const def = new Date(); def.setDate(def.getDate() + 90);
+document.getElementById('f-deadline').value = def.toISOString().slice(0,10);
+
+renderPresets();
+render();
+
+// 既存連携状態を表示
+if (localStorage.getItem('bcp-deadline-data')) {
+  document.getElementById('synced-badge').classList.add('show');
+}
+</script>
+</body>
+</html>
