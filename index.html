@@ -462,13 +462,79 @@ footer {
 }
 
 /* ======================== PRINT ======================== */
+/* ======================== EXPORT FAB ======================== */
+.export-fab{
+  position:fixed;bottom:28px;right:28px;z-index:500;
+  background:linear-gradient(135deg,var(--accent),#4db8ff);
+  border:none;border-radius:50px;padding:12px 20px;
+  color:#fff;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 24px rgba(99,102,241,.4);
+  display:flex;align-items:center;gap:8px;transition:all .2s;
+}
+.export-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.5);}
+.export-overlay{
+  display:none;position:fixed;inset:0;z-index:490;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+}
+.export-overlay.open{display:block;}
+.export-panel{
+  position:fixed;bottom:88px;right:28px;z-index:500;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:20px;width:290px;
+  box-shadow:0 12px 48px rgba(0,0,0,.6);
+  transform:translateY(12px) scale(.97);opacity:0;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+}
+.export-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+.exp-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.exp-progress-line{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.exp-progress-line span:last-child{font-weight:700;color:var(--accent);}
+.exp-opts{display:flex;flex-direction:column;gap:7px;}
+.exp-opt{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:all .18s;font-family:inherit;color:var(--text);
+  text-align:left;width:100%;
+}
+.exp-opt:hover{border-color:var(--accent);background:var(--surface3);}
+.exp-opt-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.exp-opt-label{font-size:12px;font-weight:700;display:block;}
+.exp-opt-desc{font-size:10px;color:var(--muted);display:block;margin-top:1px;}
+.exp-toast{
+  position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--green-bg);border:1px solid var(--green);border-radius:8px;
+  padding:9px 18px;font-size:12px;font-weight:700;color:var(--green);
+  z-index:600;opacity:0;transition:all .3s;white-space:nowrap;
+}
+.exp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ======================== PRINT ======================== */
 @media print {
-  body { background: #fff; color: #000; }
-  .view-bar, nav { display: none; }
-  header { position: static; }
-  .phase-card.collapsed .phase-body { display: block !important; }
+  *{color:#000!important;background:#fff!important;border-color:#ccc!important;box-shadow:none!important;-webkit-text-fill-color:#000!important;}
+  .view-bar,.export-fab,.export-panel,.export-overlay,nav,footer{display:none!important;}
+  header{position:static!important;background:#fff!important;border-bottom:2px solid #000!important;padding:16px 24px!important;}
+  h1{background:none!important;color:#000!important;font-size:20px!important;}
+  .subtitle,.badge{color:#444!important;}
+  .badge{border:1px solid #999!important;background:#eee!important;}
+  .progress-card{background:#f5f5f5!important;border:1px solid #ccc!important;}
+  .prog-bar-track{background:#ddd!important;}
+  .prog-bar-fill{background:#333!important;}
+  .phase-card{break-inside:avoid;margin-bottom:16px!important;border:1px solid #ccc!important;}
+  .phase-card.collapsed .phase-body{display:block!important;}
+  .phase-header{background:#f5f5f5!important;border-bottom:1px solid #ccc!important;padding:10px 14px!important;}
+  .item{border-bottom:1px solid #eee!important;}
+  .item.done{background:#f0fff8!important;}
+  .item-check{border:2px solid #333!important;background:#fff!important;}
+  .item.done .item-check{background:#333!important;color:#fff!important;}
+  .prio-tag,.cost-tag,.dept-tag{background:#eee!important;color:#333!important;border:1px solid #ccc!important;}
   .exec-view .item.soumu-only,
-  .soumu-view .item.exec-only { display: none; }
+  .soumu-view .item.exec-only{display:none!important;}
+  .exec-dashboard,.invest-table-wrap{break-inside:avoid;}
+  main{max-width:100%!important;padding:0 12px!important;}
+  .exec-kpi-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .exec-kpi-card{background:#f5f5f5!important;border:1px solid #ccc!important;}
+  .exec-kpi-num{color:#000!important;}
+  .invest-table th{background:#eee!important;}
 }
 
 /* ======================== RESPONSIVE — TABLET ======================== */
@@ -665,6 +731,7 @@ footer {
     <button class="view-btn" id="btn-soumu" onclick="setView('soumu')">📋 総務部ビュー</button>
   </div>
   <span class="view-hint" id="view-hint">経営層向け：意思決定・リスク・投資判断を重点表示</span>
+  <button onclick="toggleRoadmapExport()" style="margin-left:auto;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);border-radius:8px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;white-space:nowrap;">⬇ エクスポート</button>
 </div>
 
 <!-- HEADER -->
@@ -1725,11 +1792,165 @@ function adjustNavTop() {
 window.addEventListener('resize', adjustNavTop);
 adjustNavTop();
 
+// ======================== EXPORT ========================
+function toggleRoadmapExport() {
+  const panel   = document.getElementById('rm-exp-panel');
+  const overlay = document.getElementById('rm-exp-overlay');
+  const isOpen  = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    const all  = document.querySelectorAll('.item').length;
+    const done = document.querySelectorAll('.item.done').length;
+    document.getElementById('rm-exp-progress').textContent = `${done} / ${all} 項目完了`;
+    document.getElementById('rm-exp-rate').textContent = all > 0 ? `${Math.round(done/all*100)}%` : '0%';
+  }
+}
+
+function exportRoadmapPDF() {
+  toggleRoadmapExport();
+  // 折りたたみを全て展開してから印刷
+  document.querySelectorAll('.phase-card.collapsed').forEach(c => c.classList.remove('collapsed'));
+  setTimeout(() => window.print(), 200);
+}
+
+function exportRoadmapJSON() {
+  const allItems  = document.querySelectorAll('.item');
+  const allPhases = document.querySelectorAll('.phase-card');
+  const items = [];
+  allPhases.forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    phase.querySelectorAll('.item').forEach(item => {
+      const name   = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const done   = item.classList.contains('done');
+      const tags   = [...item.querySelectorAll('.prio-tag,.cost-tag,.dept-tag')].map(t => t.textContent.trim());
+      items.push({ phase: phaseTitle, name, done, tags });
+    });
+  });
+  const all  = allItems.length;
+  const done = document.querySelectorAll('.item.done').length;
+  const data = {
+    generated: new Date().toISOString(),
+    tool: '企業防災ロードマップ｜都市直下型地震対策',
+    url: 'https://ika-del.github.io/kigyobosai-bcp/',
+    progress: { done, total: all, rate: all > 0 ? (done/all*100).toFixed(1)+'%' : '0%' },
+    items
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  dlBlob(blob, `防災ロードマップ_${dateStr2()}.json`);
+  toggleRoadmapExport();
+}
+
+function exportRoadmapCSV() {
+  const rows = [['フェーズ', '対策アイテム', '完了', 'タグ']];
+  document.querySelectorAll('.phase-card').forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    phase.querySelectorAll('.item').forEach(item => {
+      const name = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const done = item.classList.contains('done') ? '✓' : '';
+      const tags = [...item.querySelectorAll('.prio-tag,.cost-tag,.dept-tag')].map(t => t.textContent.trim()).join(' / ');
+      rows.push([phaseTitle, name, done, tags]);
+    });
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  dlBlob(blob, `防災チェックリスト_${dateStr2()}.csv`);
+  toggleRoadmapExport();
+}
+
+function exportRoadmapText() {
+  const all  = document.querySelectorAll('.item').length;
+  const done = document.querySelectorAll('.item.done').length;
+  const lines = [
+    '■ 企業防災ロードマップ チェックリスト出力',
+    `出力日時: ${new Date().toLocaleString('ja-JP')}`,
+    `進捗: ${done}/${all} 項目完了（${all > 0 ? Math.round(done/all*100) : 0}%）`,
+    ''
+  ];
+  document.querySelectorAll('.phase-card').forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    lines.push(`【${phaseTitle}】`);
+    phase.querySelectorAll('.item').forEach(item => {
+      const name = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const status = item.classList.contains('done') ? '[✓]' : '[ ]';
+      lines.push(`  ${status} ${name}`);
+    });
+    lines.push('');
+  });
+  lines.push(`参考: https://ika-del.github.io/kigyobosai-bcp/`);
+  navigator.clipboard.writeText(lines.join('\n')).then(() => showRmToast('📋 チェックリストをコピーしました'));
+  toggleRoadmapExport();
+}
+
+function dlBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function dateStr2() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+function showRmToast(msg) {
+  const t = document.getElementById('rm-exp-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
 // ======================== INIT ========================
 loadState();
 updateProgress();
 // 初期化後にもtop調整
 setTimeout(adjustNavTop, 300);
 </script>
+<!-- ROADMAP EXPORT OVERLAY -->
+<div class="export-overlay" id="rm-exp-overlay" onclick="toggleRoadmapExport()"></div>
+
+<!-- ROADMAP EXPORT PANEL -->
+<div class="export-panel" id="rm-exp-panel">
+  <div class="exp-title">エクスポート形式を選択</div>
+  <div class="exp-progress-line">
+    <span id="rm-exp-progress">—</span>
+    <span id="rm-exp-rate">—</span>
+  </div>
+  <div class="exp-opts">
+    <button class="exp-opt" onclick="exportRoadmapPDF()">
+      <span class="exp-opt-icon">🖨️</span>
+      <span>
+        <span class="exp-opt-label">PDF出力（印刷）</span>
+        <span class="exp-opt-desc">全フェーズを展開して印刷ダイアログを開く</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapJSON()">
+      <span class="exp-opt-icon">⬇️</span>
+      <span>
+        <span class="exp-opt-label">JSONダウンロード</span>
+        <span class="exp-opt-desc">チェック状況・全対策データをJSONで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapCSV()">
+      <span class="exp-opt-icon">📊</span>
+      <span>
+        <span class="exp-opt-label">CSVダウンロード</span>
+        <span class="exp-opt-desc">チェックリストをExcel用CSVで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapText()">
+      <span class="exp-opt-icon">📋</span>
+      <span>
+        <span class="exp-opt-label">テキストコピー</span>
+        <span class="exp-opt-desc">進捗サマリーをクリップボードへコピー</span>
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="exp-toast" id="rm-exp-toast"></div>
+
 </body>
 </html>
