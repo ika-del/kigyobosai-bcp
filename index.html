@@ -2083,6 +2083,55 @@ function exportRoadmapText() {
   toggleRoadmapExport();
 }
 
+function importRoadmapJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try { data = JSON.parse(e.target.result); }
+    catch { return showRmToast('⚠️ 無効なJSONファイルです'); }
+
+    if (!data.items || !Array.isArray(data.items)) {
+      return showRmToast('⚠️ チェックリストデータが見つかりません');
+    }
+
+    // 全アイテムをリセット
+    document.querySelectorAll('.item').forEach(item => {
+      item.classList.remove('done');
+      const check = item.querySelector('.item-check');
+      if (check) check.textContent = '';
+    });
+
+    // 名前で一致させてチェック状態を復元
+    let restored = 0;
+    data.items.forEach(importedItem => {
+      if (!importedItem.done) return;
+      document.querySelectorAll('.item').forEach(domItem => {
+        const nameEl = domItem.querySelector('.item-name');
+        if (!nameEl) return;
+        const domName = nameEl.textContent.trim();
+        // 前方一致（10文字）でマッチング
+        if (domName.slice(0, 10) === importedItem.name.slice(0, 10)) {
+          domItem.classList.add('done');
+          const check = domItem.querySelector('.item-check');
+          if (check) check.textContent = '✓';
+          restored++;
+        }
+      });
+    });
+
+    saveState();
+    updateProgress();
+    toggleRoadmapExport();
+
+    const total = data.items.filter(i => i.done).length;
+    showRmToast(`📂 ${total}項目のチェック状態を復元しました（マッチ: ${restored}件）`);
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
 function dlBlob(blob, filename) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2113,8 +2162,20 @@ setTimeout(adjustNavTop, 300);
 <div class="export-overlay" id="rm-exp-overlay" onclick="toggleRoadmapExport()"></div>
 
 <!-- ROADMAP EXPORT PANEL -->
-<div class="export-panel" id="rm-exp-panel">
-  <div class="exp-title">エクスポート形式を選択</div>
+<div class="export-panel" id="rm-exp-panel" style="width:300px;">
+  <div class="exp-title">インポート</div>
+  <div class="exp-opts">
+    <label class="exp-opt" style="cursor:pointer;" onclick="document.getElementById('rm-import-file').click()">
+      <span class="exp-opt-icon">📂</span>
+      <span>
+        <span class="exp-opt-label">JSONから進捗を復元</span>
+        <span class="exp-opt-desc">保存したチェック状態を読み込んで再開</span>
+      </span>
+    </label>
+    <input type="file" id="rm-import-file" accept=".json" style="display:none" onchange="importRoadmapJSON(event)">
+  </div>
+  <div class="exp-divider" style="height:1px;background:var(--border);margin:10px 0;"></div>
+  <div class="exp-title">エクスポート</div>
   <div class="exp-progress-line">
     <span id="rm-exp-progress">—</span>
     <span id="rm-exp-rate">—</span>
