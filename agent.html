@@ -1047,6 +1047,20 @@ function collectExportData() {
       score: totalScore, verdict: verdictText
     }
   };
+
+  // ロードマップと共有するプロファイルを localStorage に保存
+  const sharedProfile = {
+    company, industry, industryLabel: ind.label,
+    employees, location, locationLabel: loc.label,
+    status, statusLabel: statusLabels[status],
+    budgetLimit: budgetLim,
+    urgencyBonus: Math.min(ind.urgency_bonus + loc.urgency_bonus, 2),
+    phase1Top5: phase1Items.slice(0, 5).map(i => ({ name: i.name, total: i.total, prio: i.prio })),
+    judgeScore: totalScore, judgeVerdict: verdictText,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('bcp-shared-profile', JSON.stringify(sharedProfile));
+  showToast('🔗 プロファイルを防災ロードマップに連携しました');
 }
 </script>
 <!-- EXPORT FAB -->
