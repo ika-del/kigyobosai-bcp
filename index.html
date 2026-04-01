@@ -462,6 +462,74 @@ footer {
 }
 
 /* ======================== PRINT ======================== */
+/* ======================== PROFILE BANNER ======================== */
+.profile-banner{
+  background:linear-gradient(90deg,rgba(99,102,241,.08) 0%,rgba(77,184,255,.06) 100%);
+  border-bottom:1px solid rgba(99,102,241,.25);
+  padding:9px 40px;
+  display:none;align-items:center;gap:10px;flex-wrap:wrap;
+  position:sticky;top:45px;z-index:190;
+  backdrop-filter:blur(6px);
+}
+.profile-banner.visible{display:flex;}
+.profile-banner-icon{font-size:14px;flex-shrink:0;}
+.profile-banner-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+.profile-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.profile-chip{
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
+  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);color:var(--text);
+  white-space:nowrap;
+}
+.profile-chip.chip-score{
+  background:rgba(61,220,151,.12);border-color:rgba(61,220,151,.25);color:var(--green);
+}
+.profile-chip.chip-score.score-warn{
+  background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.25);color:var(--yellow);
+}
+.profile-chip.chip-name{
+  background:rgba(240,180,41,.12);border-color:rgba(240,180,41,.25);color:var(--gold);font-size:12px;
+}
+.profile-banner-actions{display:flex;gap:8px;align-items:center;margin-left:auto;}
+.profile-agent-link{
+  font-size:10px;font-weight:700;padding:4px 12px;border-radius:6px;
+  background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);
+  color:var(--accent);text-decoration:none;white-space:nowrap;transition:all .2s;
+}
+.profile-agent-link:hover{background:rgba(99,102,241,.25);}
+.profile-clear-btn{
+  font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.profile-clear-btn:hover{border-color:var(--red);color:var(--red);}
+.profile-no-agent{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(99,102,241,.04);border-bottom:1px solid var(--border);
+  padding:7px 40px;
+  position:sticky;top:45px;z-index:190;
+}
+.profile-no-agent a{
+  font-size:11px;font-weight:700;color:var(--accent);text-decoration:none;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);
+  padding:4px 12px;border-radius:6px;transition:background .2s;
+}
+.profile-no-agent a:hover{background:rgba(99,102,241,.2);}
+.profile-no-agent span{font-size:11px;color:var(--muted);}
+
+/* エージェント連携バッジ */
+.badge-agent{background:rgba(61,220,151,.1);color:var(--green);border:1px solid rgba(61,220,151,.3);animation:pulse-badge 2s ease-in-out infinite;}
+@keyframes pulse-badge{0%,100%{opacity:1;}50%{opacity:.65;}}
+
+/* CRITICAL強調（エージェント連携時） */
+.agent-critical .item[data-agent-critical="true"]{
+  border-left:3px solid var(--red);
+  background:rgba(255,77,109,.04);
+}
+.agent-critical .item[data-agent-critical="true"] .item-name::after{
+  content:" ★エージェント最優先";font-size:9px;font-weight:700;
+  color:var(--red);margin-left:8px;vertical-align:middle;
+}
+
 /* ======================== EXPORT FAB ======================== */
 .export-fab{
   position:fixed;bottom:28px;right:28px;z-index:500;
@@ -548,6 +616,13 @@ footer {
 
 /* ======================== RESPONSIVE — MOBILE ======================== */
 @media (max-width: 768px) {
+  .profile-banner{ padding:7px 12px; top:40px; }
+  .profile-banner-label{ display:none; }
+  .profile-chip.chip-name{ font-size:12px; }
+  .profile-chip:not(.chip-name):not(.chip-score){ display:none; }
+  .profile-banner-actions a{ display:none; }
+  .profile-no-agent{ padding:6px 12px; top:40px; }
+  .profile-no-agent span:first-of-type{ display:none; }
 
   /* --- VIEW BAR: コンパクトに --- */
   .view-bar {
@@ -732,6 +807,24 @@ footer {
   </div>
   <span class="view-hint" id="view-hint">経営層向け：意思決定・リスク・投資判断を重点表示</span>
   <button onclick="toggleRoadmapExport()" style="margin-left:auto;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);border-radius:8px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;white-space:nowrap;">⬇ エクスポート</button>
+</div>
+
+<!-- PROFILE BANNER (エージェント連携中) -->
+<div class="profile-banner" id="profile-banner">
+  <span class="profile-banner-icon">🔗</span>
+  <span class="profile-banner-label">エージェント連携中</span>
+  <div class="profile-chips" id="profile-chips"></div>
+  <div class="profile-banner-actions">
+    <a href="agent.html" class="profile-agent-link">⚡ エージェントを開く</a>
+    <button class="profile-clear-btn" onclick="clearSharedProfile()">✕ 解除</button>
+  </div>
+</div>
+
+<!-- NO-PROFILE HINT (未連携時) -->
+<div class="profile-no-agent" id="profile-no-agent" style="display:none;">
+  <span>⚡</span>
+  <span>企業プロファイルを入力すると、このロードマップが貴社向けにカスタマイズされます →</span>
+  <a href="agent.html">BCPエージェントで分析する</a>
 </div>
 
 <!-- HEADER -->
@@ -1782,15 +1875,123 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ======================== NAV TOP POSITION (モバイル対応) ========================
 function adjustNavTop() {
   const viewBar = document.querySelector('.view-bar');
+  const profileBanner = document.getElementById('profile-banner');
+  const noAgentBanner = document.getElementById('profile-no-agent');
   const header = document.querySelector('header');
   const nav = document.querySelector('nav');
   if (!nav) return;
   const vbH = viewBar ? viewBar.offsetHeight : 0;
+  const pbH = (profileBanner && profileBanner.classList.contains('visible')) ? profileBanner.offsetHeight : 0;
+  const naH = (noAgentBanner && noAgentBanner.style.display !== 'none') ? noAgentBanner.offsetHeight : 0;
+  const bannerH = Math.max(pbH, naH);
   const hH = header ? header.offsetHeight : 0;
-  nav.style.top = (vbH + hH) + 'px';
+  const stickyOffset = vbH + bannerH + hH;
+  nav.style.top = stickyOffset + 'px';
+  // header の sticky top も調整
+  header.style.top = (vbH + bannerH) + 'px';
 }
 window.addEventListener('resize', adjustNavTop);
 adjustNavTop();
+
+// ======================== PROFILE SYNC (エージェント連携) ========================
+function loadSharedProfile() {
+  const raw = localStorage.getItem('bcp-shared-profile');
+  const noAgentEl = document.getElementById('profile-no-agent');
+
+  if (!raw) {
+    if (noAgentEl) noAgentEl.style.display = 'flex';
+    return;
+  }
+  if (noAgentEl) noAgentEl.style.display = 'none';
+
+  let p;
+  try { p = JSON.parse(raw); } catch(e) { return; }
+
+  // バナー表示
+  const banner = document.getElementById('profile-banner');
+  banner.classList.add('visible');
+
+  // チップ生成
+  const scaleLabel = p.employees <= 50 ? '小規模' : p.employees <= 300 ? '中規模' : '大規模';
+  const scoreColor = p.judgeScore >= 70 ? '' : 'score-warn';
+  const chips = [
+    { label: '🏢 ' + (p.company || '貴社'), cls: 'chip-name' },
+    { label: p.industryLabel || p.industry, cls: '' },
+    { label: scaleLabel + '（' + p.employees + '名）', cls: '' },
+    { label: p.locationLabel || p.location, cls: '' },
+    { label: '判定 ' + p.judgeScore + '点 / ' + p.judgeVerdict, cls: 'chip-score ' + scoreColor },
+  ];
+  document.getElementById('profile-chips').innerHTML =
+    chips.map(c => `<span class="profile-chip ${c.cls}">${c.label}</span>`).join('');
+
+  // ヘッダーをパーソナライズ
+  const h1 = document.querySelector('h1');
+  if (h1 && p.company) {
+    h1.innerHTML = `${p.company}<br><span style="font-size:0.7em;font-weight:500;opacity:.75;">企業防災ロードマップ〜最適な備えの順序と優先度〜</span>`;
+  }
+
+  const subtitle = document.querySelector('.subtitle');
+  if (subtitle && p.company) {
+    const scale = p.employees <= 50 ? '小規模' : p.employees <= 300 ? '中規模' : '大規模';
+    subtitle.textContent = `${scale}（${p.employees}名）｜${p.industryLabel || p.industry}｜${p.locationLabel || p.location}`;
+  }
+
+  // エージェント連携バッジを badge-row に追加
+  const badgeRow = document.querySelector('.badge-row');
+  if (badgeRow && !badgeRow.querySelector('.badge-agent')) {
+    const agentBadge = document.createElement('span');
+    agentBadge.className = 'badge badge-agent';
+    agentBadge.textContent = '🔗 エージェント連携中';
+    badgeRow.appendChild(agentBadge);
+  }
+
+  // ヘッダーのstickyトップ位置を再調整
+  adjustNavTop();
+
+  // Top5のCRITICAL項目をハイライト
+  if (p.phase1Top5 && p.urgencyBonus >= 1) {
+    applyAgentPriority(p.phase1Top5);
+  }
+}
+
+function applyAgentPriority(top5) {
+  const criticalNames = top5
+    .filter(i => i.prio && i.prio.includes('CRITICAL'))
+    .map(i => i.name);
+
+  document.querySelectorAll('.item').forEach(item => {
+    const nameEl = item.querySelector('.item-name');
+    if (!nameEl) return;
+    const itemName = nameEl.textContent.trim();
+    // 対策名の部分一致でマッチング（エージェントと ロードマップの表記が異なる場合に対応）
+    const isMatch = criticalNames.some(cn =>
+      itemName.includes(cn.slice(0, 8)) || cn.includes(itemName.slice(0, 8))
+    );
+    if (isMatch) item.setAttribute('data-agent-critical', 'true');
+  });
+  document.querySelector('.phases')?.classList.add('agent-critical');
+}
+
+function clearSharedProfile() {
+  localStorage.removeItem('bcp-shared-profile');
+  // バナーを非表示
+  document.getElementById('profile-banner').classList.remove('visible');
+  const noAgentEl = document.getElementById('profile-no-agent');
+  if (noAgentEl) noAgentEl.style.display = 'flex';
+
+  // ヘッダーをリセット
+  const h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = '企業防災ロードマップ<br>〜最適な備えの順序と優先度〜';
+  const subtitle = document.querySelector('.subtitle');
+  if (subtitle) subtitle.textContent = '中規模企業（50〜300名）｜BCP策定・防災整備の実行計画図解';
+
+  // エージェントバッジを削除
+  document.querySelector('.badge-agent')?.remove();
+
+  // CRITICAL強調を解除
+  document.querySelector('.phases')?.classList.remove('agent-critical');
+  document.querySelectorAll('[data-agent-critical]').forEach(el => el.removeAttribute('data-agent-critical'));
+}
 
 // ======================== EXPORT ========================
 function toggleRoadmapExport() {
@@ -1904,6 +2105,7 @@ function showRmToast(msg) {
 // ======================== INIT ========================
 loadState();
 updateProgress();
+loadSharedProfile();
 // 初期化後にもtop調整
 setTimeout(adjustNavTop, 300);
 </script>
