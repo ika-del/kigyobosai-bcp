@@ -239,6 +239,7 @@ main{max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
 .exp-opt.disabled{opacity:.4;cursor:not-allowed;}
 .exp-opt.disabled:hover{border-color:var(--border);background:var(--s2);}
 .exp-note{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;}
+.exp-divider{height:1px;background:var(--border);margin:10px 0;}
 .exp-toast{
   position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(8px);
   background:var(--green-bg);border:1px solid var(--green);border-radius:8px;
@@ -965,6 +966,40 @@ function exportAgentText() {
   toggleExportPanel();
 }
 
+// ======================== IMPORT ========================
+function importAgentJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try { data = JSON.parse(e.target.result); }
+    catch { return showToast('⚠️ 無効なJSONファイルです'); }
+
+    const p = data.profile;
+    if (!p) return showToast('⚠️ プロファイル情報が見つかりません');
+
+    // フォームに値を復元
+    if (p.company)     document.getElementById('company-name').value  = p.company;
+    if (p.industry)    document.getElementById('industry').value       = p.industry;
+    if (p.employees)   document.getElementById('employees').value      = p.employees;
+    if (p.location)    document.getElementById('location').value       = p.location;
+    if (p.status)      document.getElementById('current-status').value = p.status;
+    if (p.budgetLimit !== undefined) document.getElementById('budget-limit').value = p.budgetLimit;
+
+    toggleExportPanel();
+    showToast('📂 プロファイルを復元しました — 再計算中...');
+    setTimeout(() => {
+      runAgent();
+      document.getElementById('phase0').scrollIntoView({ behavior: 'smooth' });
+    }, 400);
+
+    // ファイル入力をリセット（同じファイルを再度読めるように）
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
 function downloadBlob(blob, filename) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1071,7 +1106,19 @@ function collectExportData() {
 
 <!-- EXPORT PANEL -->
 <div class="export-panel" id="exp-panel">
-  <div class="exp-title">エクスポート形式を選択</div>
+  <div class="exp-title">インポート</div>
+  <div class="exp-opts">
+    <label class="exp-opt" style="cursor:pointer;" onclick="document.getElementById('agent-import-file').click()">
+      <span class="exp-opt-icon">📂</span>
+      <span class="exp-opt-info">
+        <span class="exp-opt-label">JSONから復元</span>
+        <span class="exp-opt-desc">過去の計算結果を読み込んで自動再計算</span>
+      </span>
+    </label>
+    <input type="file" id="agent-import-file" accept=".json" style="display:none" onchange="importAgentJSON(event)">
+  </div>
+  <div class="exp-divider"></div>
+  <div class="exp-title" style="margin-top:4px;">エクスポート</div>
   <div class="exp-opts">
     <button class="exp-opt" data-always="1" onclick="exportAgentPDF()">
       <span class="exp-opt-icon">🖨️</span>
