@@ -525,6 +525,7 @@ main{max-width:1100px;margin:0 auto;padding:40px 32px 80px;}
 
   <div class="link-back">
     <a href="企業防災ロードマップ_都市直下型地震.html" class="lbtn primary">🏢 防災ロードマップ（チェックリスト）を開く →</a>
+    <a href="deadline.html" class="lbtn" style="border-color:var(--orange);color:var(--orange);">📅 期限管理 × 予算化ツール →</a>
     <a href="design-notes.html" class="lbtn">✨ 設計の工夫ポイントを見る →</a>
   </div>
 </div>
@@ -685,6 +686,61 @@ function renderPhase2(company, employees, ind, loc, scale, scaleMulti, budgetLim
     ・年間リスク低減額：${reduction}万円 / 年間防災投資${annualInvest}万円 → 回収期間 ${payback}年
   `;
   window._calcData = { totalAmt, annualLoss, reduction, payback, annualInvest, scaleMulti };
+
+  // 期限管理ツールとの連携データを反映
+  renderDeadlineBudget();
+}
+
+function renderDeadlineBudget() {
+  const raw = localStorage.getItem('bcp-deadline-data');
+  const wrap = document.getElementById('budget-bars');
+  // 既存の期限パネルを一度削除
+  document.getElementById('deadline-budget-panel')?.remove();
+
+  if (!raw) return;
+  let d;
+  try { d = JSON.parse(raw); } catch(e) { return; }
+
+  const s = d.summary;
+  const premium = Math.round((s.urgency_premium || 0) * 10) / 10;
+  const pct = s.premium_pct || 0;
+  const hasOverdue = s.q_overdue && s.q_overdue.count > 0;
+
+  const panel = document.createElement('div');
+  panel.id = 'deadline-budget-panel';
+  panel.style.cssText = 'margin-top:16px;';
+  panel.innerHTML = `
+    <div style="background:var(--s2);border:1px solid ${hasOverdue ? 'var(--red)' : 'var(--orange)'};border-radius:12px;padding:16px 18px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <span style="font-size:14px;">📅</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;color:${hasOverdue ? 'var(--red)' : 'var(--orange)'};text-transform:uppercase;">期限管理ツール連携 — 四半期別必要予算</span>
+        <a href="deadline.html" style="margin-left:auto;font-size:10px;color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:2px 9px;border-radius:5px;">期限ツールを開く →</a>
+      </div>
+      ${hasOverdue ? `<div class="alert-box ab-danger" style="margin-bottom:10px;"><span>⚠️</span><span><strong>${s.q_overdue.count}件が期限超過。</strong> 緊急対応コスト ${Math.round(s.q_overdue.amount)}万円が即時必要です。</span></div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">
+        ${[
+          ['⚠️ 期限超過', s.q_overdue, 'var(--red)'],
+          ['🔴 Q1（〜90日）', s.q1, 'var(--orange)'],
+          ['🟡 Q2（〜180日）', s.q2, 'var(--yellow)'],
+          ['🟢 Q3+（180日超）', { count:(s.q3.count+s.q4.count), amount:(s.q3.amount+s.q4.amount) }, 'var(--green)'],
+        ].map(([label, bucket, color]) => `
+          <div style="background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">${label}</div>
+            <div style="font-size:16px;font-weight:900;color:${color};">${Math.round((bucket?.amount||0)*10)/10}<span style="font-size:11px;font-weight:400;">万円</span></div>
+            <div style="font-size:10px;color:var(--muted);">${bucket?.count||0}件</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;border-top:1px solid var(--border);">
+        <span style="color:var(--muted);">緊急係数による増分</span>
+        <span style="font-weight:700;color:var(--red);">+${premium}万円（+${pct}%）</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding:6px 0;">
+        <span>期限調整後 合計</span>
+        <span style="color:var(--accent);">${Math.round(s.total_adjusted)}万円</span>
+      </div>
+    </div>
+  `;
+  wrap.appendChild(panel);
 }
 
 // ======================== PHASE 3 RENDER ========================
