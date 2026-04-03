@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>図解の工夫ポイント｜設計思想と制作ノート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0d0f1a;
+  --ink2: #1e2235;
+  --white: #ffffff;
+  --cream: #f7f6f2;
+  --gray: #f0f0ee;
+  --line: #e2e1dc;
+  --muted: #8a8a8a;
+  --accent: #e63946;
+  --accent2: #457b9d;
+  --accent3: #2a9d8f;
+  --gold: #e9c46a;
+  --text: #1a1a2e;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* ======================== MASTHEAD ======================== */
+.masthead {
+  background: var(--ink);
+  color: var(--white);
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 440px;
+}
+.masthead-left {
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.masthead-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.eyebrow-line { height: 2px; width: 32px; background: var(--accent); }
+.eyebrow-text { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; }
+.masthead-h1 { font-size: clamp(28px, 3.5vw, 48px); font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
+.masthead-h1 em { font-style: normal; color: var(--gold); }
+.masthead-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 420px; }
+.masthead-meta { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 32px; }
+.masthead-stat { }
+.stat-num { font-size: 28px; font-weight: 900; color: var(--gold); font-family: 'Space Grotesk', sans-serif; }
+.stat-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.masthead-right {
+  background: var(--accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.masthead-right::before {
+  content: '工夫';
+  position: absolute;
+  font-size: 180px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.08);
+  right: -20px;
+  bottom: -20px;
+  line-height: 1;
+  user-select: none;
+}
+.masthead-quote {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--white);
+  position: relative;
+  z-index: 1;
+}
+.masthead-quote::before {
+  content: '❝';
+  display: block;
+  font-size: 40px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.masthead-quote-attr { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 16px; font-weight: 400; }
+
+/* ======================== LAYOUT ======================== */
+.page { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ======================== SECTION ======================== */
+.section { margin-top: 64px; }
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.section-num {
+  width: 36px; height: 36px;
+  background: var(--ink);
+  color: var(--white);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; flex-shrink: 0;
+}
+.section-title { font-size: 20px; font-weight: 900; }
+.section-line { flex: 1; height: 1px; background: var(--line); }
+
+/* ======================== PHILOSOPHY GRID ======================== */
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.phil-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  border-top: 4px solid;
+  position: relative;
+  overflow: hidden;
+}
+.phil-card.c-red { border-color: var(--accent); }
+.phil-card.c-blue { border-color: var(--accent2); }
+.phil-card.c-green { border-color: var(--accent3); }
+.phil-card::after {
+  content: attr(data-bg);
+  position: absolute;
+  font-size: 80px;
+  bottom: -10px; right: -5px;
+  opacity: 0.06;
+  line-height: 1;
+  user-select: none;
+}
+.phil-icon { font-size: 32px; margin-bottom: 14px; }
+.phil-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+.phil-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.phil-tag {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  letter-spacing: 0.06em;
+}
+.c-red .phil-tag { background: #fff0f0; color: var(--accent); }
+.c-blue .phil-tag { background: #eff6ff; color: var(--accent2); }
+.c-green .phil-tag { background: #ecfdf5; color: var(--accent3); }
+
+/* ======================== BEFORE AFTER ======================== */
+.ba-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ba-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+.ba-before, .ba-after {
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+.ba-before {
+  background: #fff8f8;
+  border: 1.5px solid #fecaca;
+}
+.ba-after {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+}
+.ba-label {
+  font-size: 10px; font-weight: 900; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.ba-before .ba-label { color: var(--accent); }
+.ba-after .ba-label { color: var(--accent3); }
+.ba-label-dot { width: 8px; height: 8px; border-radius: 50%; }
+.ba-before .ba-label-dot { background: var(--accent); }
+.ba-after .ba-label-dot { background: var(--accent3); }
+.ba-text { font-size: 13px; line-height: 1.7; }
+.ba-text strong { font-weight: 700; }
+.ba-text .highlight { background: #fef08a; padding: 1px 3px; border-radius: 3px; }
+.ba-text .strike { text-decoration: line-through; color: var(--muted); }
+.ba-arrow {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--accent2);
+}
+.ba-point {
+  font-size: 11px; font-weight: 700; margin-top: 10px; padding: 6px 10px;
+  border-radius: 8px;
+}
+.ba-before .ba-point { background: #fee2e2; color: #991b1b; }
+.ba-after .ba-point { background: #dcfce7; color: #166534; }
+
+/* ======================== FORMAT ANATOMY ======================== */
+.anatomy-wrap {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+}
+.anatomy-header {
+  text-align: center;
+  font-size: 13px; color: var(--muted);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+.anatomy-phase {
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+/* Annotation numbers */
+.ann {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  background: var(--accent);
+  color: var(--white);
+  border-radius: 50%;
+  font-size: 11px; font-weight: 900;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.anatomy-top {
+  padding: 18px 22px;
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--white);
+  border-bottom: 2px dashed rgba(230,57,70,0.3);
+  position: relative;
+}
+.ann-label-top {
+  position: absolute;
+  top: -12px; left: 20px;
+  background: var(--accent);
+  color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px;
+  white-space: nowrap;
+}
+.anat-badge {
+  width: 44px; height: 44px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 900; color: var(--accent);
+  flex-shrink: 0;
+}
+.anat-badge span { font-size: 18px; }
+.anat-meta { flex: 1; }
+.anat-pill {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  background: #fef2f2; color: var(--accent);
+  padding: 2px 10px; border-radius: 20px; margin-bottom: 4px;
+}
+.anat-title { font-size: 15px; font-weight: 900; margin-bottom: 2px; }
+.anat-sub { font-size: 11px; color: var(--muted); }
+.anat-cost { text-align: right; }
+.anat-cost-label { font-size: 9px; color: var(--muted); }
+.anat-cost-value { font-size: 18px; font-weight: 900; color: var(--accent); }
+
+.anatomy-why {
+  padding: 12px 22px;
+  background: #fef2f2;
+  font-size: 12px;
+  display: flex; gap: 10px; align-items: flex-start;
+  border-bottom: 2px dashed rgba(230,57,70,0.3);
+  position: relative;
+}
+.ann-label-why {
+  position: absolute;
+  top: -12px; right: 20px;
+  background: var(--accent2);
+  color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px;
+  white-space: nowrap;
+}
+.anatomy-actions {
+  padding: 16px 22px;
+  background: #fafafa;
+  border-bottom: 2px dashed rgba(230,57,70,0.3);
+  position: relative;
+}
+.ann-label-actions {
+  position: absolute;
+  top: -12px; left: 20px;
+  background: var(--accent3);
+  color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px;
+}
+.anat-action-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.anat-action-chip {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px; font-weight: 600;
+  display: flex; gap: 6px; align-items: center;
+}
+.anatomy-meta-row {
+  padding: 14px 22px;
+  display: flex; gap: 10px;
+  background: var(--white);
+  position: relative;
+}
+.ann-label-meta {
+  position: absolute;
+  top: -12px; right: 20px;
+  background: #7c3aed;
+  color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px;
+}
+.anat-meta-chip {
+  flex: 1;
+  background: var(--gray);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+.anat-meta-chip-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; font-weight: 700; letter-spacing: 0.08em; }
+
+/* Annotation legend */
+.ann-legend { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 14px; }
+.ann-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; }
+.ann-item .ann { flex-shrink: 0; }
+.ann-item-text { color: var(--text); }
+.ann-item-text strong { display: block; font-weight: 700; margin-bottom: 1px; }
+.ann-item-text span { color: var(--muted); font-size: 11px; }
+
+/* ======================== LANGUAGE TABLE ======================== */
+.lang-table {
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.lang-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  align-items: stretch;
+}
+.lang-row:last-child { border-bottom: none; }
+.lang-row.header { background: var(--ink); color: var(--white); }
+.lang-cell {
+  padding: 14px 20px;
+  font-size: 13px;
+}
+.lang-row.header .lang-cell { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.lang-before { background: #fff8f8; }
+.lang-after { background: #f7fffe; }
+.lang-before .lang-cell { color: #7f1d1d; }
+.lang-after .lang-cell { color: #064e3b; }
+.lang-cell strong { font-weight: 700; display: block; }
+.lang-cell small { font-size: 11px; color: var(--muted); }
+.lang-arrow-cell {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--cream); font-size: 16px; color: var(--muted);
+  border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+}
+
+/* ======================== VISUAL SYSTEM ======================== */
+.vs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.vs-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.vs-num {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--ink);
+  color: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; flex-shrink: 0;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.vs-body { flex: 1; }
+.vs-title { font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+.vs-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+.vs-sample {
+  margin-top: 10px; padding: 8px 12px;
+  background: var(--gray); border-radius: 8px;
+  font-size: 11px; line-height: 1.5;
+}
+.vs-sample-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+
+/* ======================== PRINCIPLE PILLS ======================== */
+.principle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.principle-pill {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  padding: 8px 18px;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: var(--shadow);
+}
+.pp-icon { font-size: 16px; }
+
+/* ======================== METRICS ======================== */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.metric-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.metric-num {
+  font-size: 32px; font-weight: 900;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.metric-num span { font-size: 16px; font-weight: 400; color: var(--muted); }
+.metric-label { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.metric-bar {
+  height: 3px; border-radius: 2px; margin-top: 10px;
+  background: var(--line);
+  overflow: hidden;
+}
+.metric-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+}
+
+/* ======================== FLOW STRIP ======================== */
+.flow-strip {
+  background: var(--ink2);
+  border-radius: 20px;
+  padding: 32px 36px;
+  color: var(--white);
+  margin-top: 64px;
+}
+.flow-strip-title { font-size: 16px; font-weight: 900; margin-bottom: 20px; color: var(--gold); }
+.flow-nodes {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+}
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0 12px;
+}
+.flow-node-circle {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 900; text-align: center; line-height: 1.2;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+.fn-1 { background: rgba(230,57,70,0.3); border-color: var(--accent); }
+.fn-2 { background: rgba(69,123,157,0.3); border-color: var(--accent2); }
+.fn-3 { background: rgba(42,157,143,0.3); border-color: var(--accent3); }
+.fn-4 { background: rgba(233,196,106,0.3); border-color: var(--gold); }
+.fn-5 { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+.flow-node-label { font-size: 10px; color: rgba(255,255,255,0.6); text-align: center; max-width: 80px; line-height: 1.3; }
+.flow-connector { font-size: 16px; color: rgba(255,255,255,0.2); flex-shrink: 0; }
+
+/* ======================== FOOTER ======================== */
+footer {
+  text-align: center;
+  padding: 28px 20px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  background: var(--white);
+  margin-top: 48px;
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 900px) {
+  .masthead { grid-template-columns: 1fr; }
+  .masthead-right { display: none; }
+  .philosophy-grid { grid-template-columns: 1fr; }
+  .vs-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .ba-row { grid-template-columns: 1fr; }
+  .ba-arrow { display: none; }
+}
+@media (max-width: 600px) {
+  .masthead-left { padding: 36px 24px; }
+  .page { padding: 0 16px 60px; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+  .lang-row { grid-template-columns: 1fr; }
+  .lang-arrow-cell { display: none; }
+  .flow-strip { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-left">
+    <div>
+      <div class="masthead-eyebrow">
+        <div class="eyebrow-line"></div>
+        <span class="eyebrow-text">Design Notes &amp; Craft</span>
+      </div>
+      <h1 class="masthead-h1">図解を<em>「伝わる」</em>に<br>変えた工夫の全記録</h1>
+      <p class="masthead-sub">企業防災ロードマップを「ツール」から「誰でも理解できる図解」に作り替えた際の設計思想・改善ポイント・表現の工夫を、図解でまとめます。</p>
+    </div>
+    <div class="masthead-meta">
+      <div class="masthead-stat">
+        <div class="stat-num">3</div>
+        <div class="stat-label">設計原則</div>
+      </div>
+      <div class="masthead-stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Before→After 改善例</div>
+      </div>
+      <div class="masthead-stat">
+        <div class="stat-num">12</div>
+        <div class="stat-label">ビジュアル工夫ポイント</div>
+      </div>
+    </div>
+  </div>
+  <div class="masthead-right">
+    <p class="masthead-quote">
+      「複雑な情報は<br>分解して、順番をつけて、<br>言葉を換えれば<br>誰にでも伝わる」
+    </p>
+    <p class="masthead-quote-attr">— 本図解の制作方針より</p>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- SECTION 1: 設計原則 -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">1</div>
+    <div class="section-title">設計の3原則</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="philosophy-grid">
+    <div class="phil-card c-red" data-bg="順">
+      <div class="phil-icon">📐</div>
+      <div class="phil-title">① 順番を明示する</div>
+      <div class="phil-desc">防災対策は「何でもいいから早く」ではなく、正しい順番で実施することが重要。STEP番号と矢印で「次に何をするか」が一目でわかる構造にした。</div>
+      <div class="phil-tag">順序の可視化</div>
+    </div>
+    <div class="phil-card c-blue" data-bg="理">
+      <div class="phil-icon">💡</div>
+      <div class="phil-title">② 「なぜ」を先に伝える</div>
+      <div class="phil-desc">「何をするか」だけでは動けない。「なぜ今すぐやらないといけないか」という理由を、リスクと法令違反の観点で各STEPの冒頭に配置した。</div>
+      <div class="phil-tag">動機づけの設計</div>
+    </div>
+    <div class="phil-card c-green" data-bg="役">
+      <div class="phil-icon">👥</div>
+      <div class="phil-title">③ 「誰がやるか」を分ける</div>
+      <div class="phil-desc">防災の失敗は多くの場合「誰がやるか不明確」が原因。経営層・総務部・IT部門の役割を各STEPの末尾に必ず明示し、責任の所在を明確化した。</div>
+      <div class="phil-tag">責任の明示化</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: フォーマット解剖 -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">2</div>
+    <div class="section-title">1ブロックの構造解剖</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="anatomy-wrap">
+    <div class="anatomy-header">↓ 各STEPブロックは 4層構造 になっています</div>
+
+    <div class="anatomy-phase">
+
+      <!-- 層① ヘッダー -->
+      <div class="anatomy-top">
+        <div class="ann-label-top"><span class="ann">1</span> ヘッダー層：「何を・いつ・いくら」を一目で</div>
+        <div class="anat-badge"><span>1</span>STEP</div>
+        <div class="anat-meta">
+          <div class="anat-pill">⏱ 今すぐ〜1週間以内</div>
+          <div class="anat-title">🆘 まず「命を守る仕組み」を作る</div>
+          <div class="anat-sub">地震が起きた直後に機能する、最低限の安全対策。法律で義務付けられているものが多い。</div>
+        </div>
+        <div class="anat-cost">
+          <div class="anat-cost-label">目安コスト</div>
+          <div class="anat-cost-value">〜30万円</div>
+        </div>
+      </div>
+
+      <!-- 層② WHY -->
+      <div class="anatomy-why">
+        <div class="ann-label-why"><span class="ann" style="background:var(--accent2)">2</span> WHY層：「なぜやるか」で行動を促す</div>
+        <span style="font-size:18px;">⚠️</span>
+        <div>
+          <strong>なぜ最初にやるの？</strong><br>
+          地震が起きた直後、従業員の命を守れなければ会社も続けられません。「避難経路を知らなかった」という状態は法律違反にもなります。
+        </div>
+      </div>
+
+      <!-- 層③ アクション -->
+      <div class="anatomy-actions">
+        <div class="ann-label-actions"><span class="ann" style="background:var(--accent3)">3</span> アクション層：絵文字＋平易な言葉でやることを列挙</div>
+        <div class="anat-action-row">
+          <div class="anat-action-chip">🚪 避難経路・避難場所を確認して掲示する</div>
+          <div class="anat-action-chip">📱 安否確認システムを導入して訓練する</div>
+          <div class="anat-action-chip">📞 緊急連絡先を3つのルートで整備する</div>
+          <div class="anat-action-chip" style="color:var(--muted)">…他3項目</div>
+        </div>
+      </div>
+
+      <!-- 層④ メタ情報 -->
+      <div class="anatomy-meta-row">
+        <div class="ann-label-meta"><span class="ann" style="background:#7c3aed">4</span> 責任層：誰が・いくら・いつを分担表示</div>
+        <div class="anat-meta-chip"><div class="anat-meta-chip-label">👔 経営層</div>予算を承認する</div>
+        <div class="anat-meta-chip"><div class="anat-meta-chip-label">📋 総務部</div>全項目を実施・届出</div>
+        <div class="anat-meta-chip"><div class="anat-meta-chip-label">💰 費用</div>〜30万円</div>
+      </div>
+
+    </div>
+
+    <div class="ann-legend" style="margin-top:24px;">
+      <div class="ann-item">
+        <span class="ann">1</span>
+        <div class="ann-item-text">
+          <strong>ヘッダー層</strong>
+          <span>STEP番号・タイトル・期限・コストを最上段に集約。斜め読みでも情報が取れる。</span>
+        </div>
+      </div>
+      <div class="ann-item">
+        <span class="ann" style="background:var(--accent2)">2</span>
+        <div class="ann-item-text">
+          <strong>WHY層（色帯）</strong>
+          <span>色帯で視覚的に「ここが重要」と示す。リスクの言語化で危機感を醸成。</span>
+        </div>
+      </div>
+      <div class="ann-item">
+        <span class="ann" style="background:var(--accent3)">3</span>
+        <div class="ann-item-text">
+          <strong>アクション層</strong>
+          <span>絵文字で視覚的に分類。専門用語を使わず、行動動詞で始まる文章に統一。</span>
+        </div>
+      </div>
+      <div class="ann-item">
+        <span class="ann" style="background:#7c3aed">4</span>
+        <div class="ann-item-text">
+          <strong>責任層（メタ行）</strong>
+          <span>「誰が・いくら・いつ」の3点を毎STEPで繰り返す。責任の曖昧さをなくす。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: Before → After -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">3</div>
+    <div class="section-title">Before → After：言葉の改善6例</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="ba-grid">
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE（元の表現）</div>
+        <div class="ba-text"><span class="strike">BIA（業務影響度分析）による重要業務の特定</span></div>
+        <div class="ba-point">❌ 略語が多く、一般の人には意味不明</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER（改善後）</div>
+        <div class="ba-text"><strong>「絶対に止めてはいけない業務」を決める</strong></div>
+        <div class="ba-point">✅ 何をすべきか一文でわかる</div>
+      </div>
+    </div>
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE</div>
+        <div class="ba-text"><span class="strike">RTO・RPOを定義し復旧手順を文書化する</span></div>
+        <div class="ba-point">❌ IT用語で総務部には伝わらない</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER</div>
+        <div class="ba-text"><strong>「何時間以内に復旧するか」も決めておく</strong></div>
+        <div class="ba-point">✅ 目的と結果がイメージできる</div>
+      </div>
+    </div>
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE</div>
+        <div class="ba-text"><span class="strike">ローリングストック方式で廃棄コストを最小化</span></div>
+        <div class="ba-point">❌ 「ローリングストック」が伝わらない</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER</div>
+        <div class="ba-text"><strong>「使いながら補充する」仕組みにする</strong></div>
+        <div class="ba-point">✅ 誰でも頭に絵が浮かぶ表現</div>
+      </div>
+    </div>
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE</div>
+        <div class="ba-text"><span class="strike">衛星電話・MCA無線の調達（代替通信手段）</span></div>
+        <div class="ba-point">❌ なぜ必要かが書いていない</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER</div>
+        <div class="ba-text"><strong>携帯が使えないときの通信手段を確保する</strong><br><small style="color:#064e3b;">→ 理由も追記：「阪神・東日本でも数時間不通」</small></div>
+        <div class="ba-point">✅ 手段の前に「なぜ」を示す</div>
+      </div>
+    </div>
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE</div>
+        <div class="ba-text"><span class="strike">消防訓練の年2回実施計画と届出</span></div>
+        <div class="ba-point">❌ 義務感だけで行動の意図が薄い</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER</div>
+        <div class="ba-text"><strong>避難訓練を年2回やる（春・秋）</strong><br><small style="color:#064e3b;">→ 参加率90%以上を目標に、という具体目標も追加</small></div>
+        <div class="ba-point">✅ いつ・何回・目標値が明確</div>
+      </div>
+    </div>
+    <div class="ba-row">
+      <div class="ba-before">
+        <div class="ba-label"><div class="ba-label-dot"></div>BEFORE</div>
+        <div class="ba-text"><span class="strike">帰宅困難者対応方針の策定と周知</span></div>
+        <div class="ba-point">❌ 「帰宅困難者」が一般的でない</div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-after">
+        <div class="ba-label"><div class="ba-label-dot"></div>AFTER</div>
+        <div class="ba-text"><strong>帰れない従業員をどうするか決めておく</strong><br><small style="color:#064e3b;">→「会社に泊まれるか・食事は出るか・情報は」を具体列挙</small></div>
+        <div class="ba-point">✅ 状況をイメージさせてから行動へ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: ビジュアル工夫 -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">4</div>
+    <div class="section-title">ビジュアルの12の工夫</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="vs-grid">
+    <div class="vs-card">
+      <div class="vs-num">01</div>
+      <div class="vs-body">
+        <div class="vs-title">ダーク→ライトへの転換</div>
+        <div class="vs-desc">元のツールはダークテーマ（黒背景）。専門家向けの印象が強いため、新図解は白背景の親しみやすいトーンに変更。「誰でも読める」を実現。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">変更点</div>
+          背景 #0b0d14（黒）→ #f7f6f2（クリーム白）
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">02</div>
+      <div class="vs-body">
+        <div class="vs-title">絵文字をアイコンとして活用</div>
+        <div class="vs-desc">各アクション項目の先頭に絵文字（🚪📱📞）を配置。テキストを読む前に「何についてか」が直感的にわかる。フォント読み込み不要のゼロコスト手法。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">効果</div>
+          🚪 → ドア・避難口のイメージが即座に浮かぶ
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">03</div>
+      <div class="vs-body">
+        <div class="vs-title">縦の矢印コネクターで順番を強調</div>
+        <div class="vs-desc">各STEPブロックの間に「▼」のコネクターを挿入。「上から順にやる」という流れを視覚的に強制し、読み飛ばしを防ぐ。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">設計意図</div>
+          「順番を間違えないこと」が防災の命題
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">04</div>
+      <div class="vs-body">
+        <div class="vs-title">WHYストライプ（色帯）</div>
+        <div class="vs-desc">各STEPに「なぜ必要か」の色帯を挿入。フェーズごとに色を変え（赤・橙・黄など）、視覚的なリズムをつくる。色だけで「緊急度の違い」も伝える。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">色彩設計</div>
+          STEP1（赤）→ STEP6（紫）で緊急度のグラデーション
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">05</div>
+      <div class="vs-body">
+        <div class="vs-title">ヒーローセクションで数字を先出し</div>
+        <div class="vs-desc">ページ冒頭に「70%・約30%・3法令・〜500万円」の4つの数字を大きく表示。読者の「危機感」と「全体像の把握」を最初の3秒で完成させる。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">心理設計</div>
+          数字→危機感→「続きを読もう」の流れを作る
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">06</div>
+      <div class="vs-body">
+        <div class="vs-title">4層ブロック構造の統一</div>
+        <div class="vs-desc">全6STEPを「ヘッダー・WHY・アクション・メタ」の4層で統一。どのSTEPを読んでいても迷子にならず、次に何が来るか予測できる読み心地を実現。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">UXの観点</div>
+          「繰り返しのパターン」は認知負荷を下げる
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">07</div>
+      <div class="vs-body">
+        <div class="vs-title">未対応リスクをバッジで表示</div>
+        <div class="vs-desc">各フェーズのWHY帯の右端に「未対応 → 法令違反」などのリスクバッジを配置。「やらない場合何が起きるか」を短く端的に伝える。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">表現例</div>
+          未対応 → 法令違反・労災リスク
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">08</div>
+      <div class="vs-body">
+        <div class="vs-title">コスト情報を毎STEPに明示</div>
+        <div class="vs-desc">各STEPのヘッダー右上と、メタ行の両方にコストを記載。「いくらかかるか」を常に可視化し、「お金の話は後で」を排除した。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">効果</div>
+          経営判断に必要な情報が最上部に集約される
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">09</div>
+      <div class="vs-body">
+        <div class="vs-title">行動動詞で始まるアクション文</div>
+        <div class="vs-desc">全アクション項目を「〜する」の動詞で統一。「何をするか」が明確になり、タスクとして捉えやすくなる。名詞で終わる表現（「〜の整備」）を排除。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">文体統一</div>
+          ×「緊急連絡網の整備・最新化」<br>
+          ○「緊急連絡先を3つのルートで整備する」
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">10</div>
+      <div class="vs-body">
+        <div class="vs-title">具体的な数字の埋め込み</div>
+        <div class="vs-desc">「100人なら水900L・食料300食分」「訓練は年2回（春・秋）」など、規模感や頻度の具体数値を文中に組み込む。読み手が自社に当てはめやすくなる。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">設計意図</div>
+          「自分ごと化」を助ける数字の具体化
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">11</div>
+      <div class="vs-body">
+        <div class="vs-title">タグ（法律・役割）を色分け</div>
+        <div class="vs-desc">「📋 消防法」「経営層主導」「★経営承認」のタグを色分けし、コンプライアンス要件・責任者・緊急度を視覚的に分類。ひと目でスキャンできる。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">タグ設計</div>
+          赤＝法令、金＝経営承認必須、青＝担当部署
+        </div>
+      </div>
+    </div>
+    <div class="vs-card">
+      <div class="vs-num">12</div>
+      <div class="vs-body">
+        <div class="vs-title">サマリーボックスで全体を締める</div>
+        <div class="vs-desc">最後にダークな「まとめ」ボックスを配置。6STEPを再掲し、総コストを計算して表示。「全部読んだ人への報酬」として全体像をギュッと凝縮。</div>
+        <div class="vs-sample">
+          <div class="vs-sample-label">UXの工夫</div>
+          最後まで読んだ達成感＋次のアクション促進
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: 改善の数値化 -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">5</div>
+    <div class="section-title">改善の定量的評価（推定）</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-num">-70<span>%</span></div>
+      <div class="metric-label">専門用語の削減率<br>（BIA・RTO・RPO等を平易な表現へ）</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:70%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">+4<span>層</span></div>
+      <div class="metric-label">情報の構造化<br>（1画面あたりの読み取り深度）</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:80%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">6×6<span>個</span></div>
+      <div class="metric-label">絵文字アイコンの活用数<br>（全アクション項目に付与）</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:100%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-num">3<span>点</span></div>
+      <div class="metric-label">毎STEPで繰り返す情報<br>（経営層・総務部・費用）</div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:60%"></div></div>
+    </div>
+  </div>
+
+  <div class="principle-row">
+    <div class="principle-pill"><div class="pp-icon">🎯</div> 読む人の「立場」で情報を分類する</div>
+    <div class="principle-pill"><div class="pp-icon">📝</div> 名詞より動詞で終わらせる</div>
+    <div class="principle-pill"><div class="pp-icon">🔢</div> 曖昧な表現より具体的な数字</div>
+    <div class="principle-pill"><div class="pp-icon">⚠️</div> 「やるべき理由」を行動の直前に置く</div>
+    <div class="principle-pill"><div class="pp-icon">🎨</div> 色はフェーズの区別と緊急度に使う</div>
+    <div class="principle-pill"><div class="pp-icon">🔁</div> 同じ構造を繰り返すことで認知負荷を下げる</div>
+  </div>
+</div>
+
+<!-- FLOW STRIP -->
+<div class="flow-strip">
+  <div class="flow-strip-title">「伝わる図解」ができるまでの思考フロー</div>
+  <div class="flow-nodes">
+    <div class="flow-node">
+      <div class="flow-node-circle fn-1">読み手を<br>定義</div>
+      <div class="flow-node-label">誰が読む？何を知りたい？</div>
+    </div>
+    <div class="flow-connector">→</div>
+    <div class="flow-node">
+      <div class="flow-node-circle fn-2">情報を<br>分解</div>
+      <div class="flow-node-label">複雑な内容を最小単位に</div>
+    </div>
+    <div class="flow-connector">→</div>
+    <div class="flow-node">
+      <div class="flow-node-circle fn-3">順番を<br>決める</div>
+      <div class="flow-node-label">重要度・時系列・因果</div>
+    </div>
+    <div class="flow-connector">→</div>
+    <div class="flow-node">
+      <div class="flow-node-circle fn-4">言葉を<br>換える</div>
+      <div class="flow-node-label">専門用語→生活言語へ</div>
+    </div>
+    <div class="flow-connector">→</div>
+    <div class="flow-node">
+      <div class="flow-node-circle fn-5">視覚で<br>補強</div>
+      <div class="flow-node-label">色・絵文字・構造で整理</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: 言語の対訳表 -->
+<div class="section">
+  <div class="section-label">
+    <div class="section-num">6</div>
+    <div class="section-title">専門用語 → やさしい言葉 対訳表</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="lang-table">
+    <div class="lang-row header">
+      <div class="lang-cell">❌ 専門・硬い表現</div>
+      <div class="lang-arrow-cell"></div>
+      <div class="lang-cell">✅ やさしい言葉に変換</div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>BIA（業務影響度分析）</strong><small>Business Impact Analysis</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>「絶対に止めてはいけない業務」を決める</strong><small>優先順位をつける作業のこと</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>RTO・RPO</strong><small>目標復旧時間・目標復旧時点</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>「何時間以内に・どの時点まで戻すか」</strong><small>復旧の目標値を決めること</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>ローリングストック</strong><small>備蓄の管理方式</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>「使いながら補充する」仕組み</strong><small>賞味期限切れムダをなくす方法</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>代替拠点の確保</strong><small>事業継続の手段</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>本社が使えなくなった場合の「予備のオフィス」を確保する</strong><small>コワーキングや協定など</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>サプライチェーンリスク評価</strong><small>調達の脆弱性分析</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>仕入先が被災したときの代替ルートを作る</strong><small>特定の1社に頼りすぎない調達</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>ステークホルダー開示</strong><small>BCPの情報公開</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>BCPを銀行・取引先に公開する</strong><small>信頼獲得と与信評価向上につながる</small></div>
+    </div>
+    <div class="lang-row">
+      <div class="lang-cell lang-before"><strong>帰宅困難者対応方針の策定と周知</strong><small>行政用語そのまま</small></div>
+      <div class="lang-arrow-cell">→</div>
+      <div class="lang-cell lang-after"><strong>帰れない従業員をどうするか決めておく</strong><small>泊まれるか・食事は・情報はどう伝えるか</small></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <p>図解の工夫ポイント 制作ノート｜企業防災ロードマップ 2026年版</p>
+  <p style="margin-top:4px">このページ自体も「伝わる図解」の原則で設計されています。</p>
+</footer>
+
+</body>
+</html>
