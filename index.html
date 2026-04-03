@@ -22,6 +22,8 @@
   --purple: #a78bfa; --purple-bg: #1a1430;
   --gold: #f0b429; --gold-bg: #2a1f08;
   --accent: #6366f1;
+  --exec: #f0b429;
+  --soumu: #4db8ff;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -33,17 +35,63 @@ body {
   line-height: 1.65;
 }
 
+/* ======================== VIEW TOGGLE BAR ======================== */
+.view-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.view-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; white-space: nowrap; }
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.view-btn {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.view-btn.active-exec { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); }
+.view-btn.active-soumu { background: var(--blue-bg); color: var(--soumu); border: 1px solid var(--soumu); }
+.view-hint { font-size: 11px; color: var(--muted); margin-left: auto; }
+
 /* ======================== HEADER ======================== */
 header {
   background: linear-gradient(160deg, #13161f 0%, #0b0d14 100%);
   border-bottom: 1px solid var(--border);
-  padding: 36px 40px 30px;
+  padding: 28px 40px 22px;
+  position: sticky;
+  top: 45px;
+  z-index: 100;
 }
 .header-inner {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
 }
-.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.header-left { flex: 1; min-width: 260px; }
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .badge {
   font-size: 10px; font-weight: 700; padding: 3px 10px;
   border-radius: 20px; letter-spacing: 0.06em;
@@ -52,21 +100,104 @@ header {
 .badge-target { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); }
 .badge-date { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 h1 {
-  font-size: clamp(22px, 3vw, 32px);
+  font-size: clamp(18px, 2.5vw, 26px);
   font-weight: 900;
   line-height: 1.3;
   background: linear-gradient(120deg, #fff 30%, var(--blue) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  margin-bottom: 6px;
 }
-.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+.subtitle { font-size: 13px; color: var(--muted); margin-top: 5px; }
 
-/* ======================== KPI GRID ======================== */
+/* Audience indicator */
+.audience-indicator {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.aud-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 150px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.aud-card.active-exec { border-color: var(--gold); background: var(--gold-bg); }
+.aud-card.active-soumu { border-color: var(--soumu); background: var(--blue-bg); }
+.aud-role { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
+.aud-card.active-exec .aud-role { color: var(--gold); }
+.aud-card.active-soumu .aud-role { color: var(--soumu); }
+.aud-desc { font-size: 12px; font-weight: 500; }
+.aud-focus { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* Progress */
+.progress-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  min-width: 180px;
+}
+.prog-label { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 4px; }
+.prog-count { font-size: 20px; font-weight: 900; color: var(--accent); }
+.prog-count small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.prog-bar-wrap { height: 5px; background: var(--border); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+.prog-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue)); border-radius: 3px; transition: width 0.5s; width: 0%; }
+
+/* ======================== NAV ======================== */
+nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 40px;
+  position: sticky;
+  top: 153px;
+  z-index: 90;
+  overflow-x: auto;
+}
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.nav-pill {
+  font-size: 11px; font-weight: 700; padding: 5px 13px;
+  border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.nav-pill.c1 { border-color: var(--red); color: var(--red); }
+.nav-pill.c2 { border-color: var(--orange); color: var(--orange); }
+.nav-pill.c3 { border-color: var(--yellow); color: var(--yellow); }
+.nav-pill.c4 { border-color: var(--blue); color: var(--blue); }
+.nav-pill.c5 { border-color: var(--green); color: var(--green); }
+.nav-pill.c6 { border-color: var(--purple); color: var(--purple); }
+
+/* ======================== MAIN ======================== */
+main { max-width: 1280px; margin: 0 auto; padding: 36px 40px 80px; }
+
+/* ======================== EXEC DASHBOARD (経営層ビュー) ======================== */
+.exec-dashboard {
+  margin-bottom: 44px;
+  display: none;
+}
+.exec-dashboard.show { display: block; }
+.section-heading {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-heading::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* Risk KPI cards */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
-  margin-top: 8px;
+  margin-bottom: 20px;
 }
 .kpi-card {
   background: var(--surface);
@@ -86,24 +217,47 @@ h1 {
 .kpi-card.kpi-orange::before { background: var(--orange); }
 .kpi-card.kpi-green::before { background: var(--green); }
 .kpi-card.kpi-gold::before { background: var(--gold); }
-.kpi-icon { font-size: 20px; margin-bottom: 6px; }
-.kpi-value { font-size: 26px; font-weight: 900; }
-.kpi-unit { font-size: 13px; font-weight: 400; color: var(--muted); }
+.kpi-icon { font-size: 22px; margin-bottom: 8px; }
+.kpi-value { font-size: 24px; font-weight: 900; }
+.kpi-unit { font-size: 12px; font-weight: 400; color: var(--muted); }
 .kpi-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .kpi-note { font-size: 10px; color: var(--muted); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
 
-/* ======================== MAIN ======================== */
-main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
-
-.section-heading {
-  font-size: 11px; font-weight: 700; color: var(--muted);
-  letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px;
-  display: flex; align-items: center; gap: 8px;
+/* Investment table */
+.invest-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
+.invest-table th {
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
 }
-.section-heading::after { content:''; flex:1; height:1px; background: var(--border); }
+.invest-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.invest-table tr:last-child td { border-bottom: none; }
+.invest-table tr:hover td { background: var(--surface2); }
+.decision-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 4px; white-space: nowrap;
+}
+.decision-exec { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); }
+.decision-soumu { background: var(--blue-bg); color: var(--soumu); border: 1px solid var(--soumu); }
+.decision-joint { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
+
+/* Exec alert box */
+.exec-alert {
+  background: var(--gold-bg);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.exec-alert-icon { font-size: 20px; flex-shrink: 0; }
+.exec-alert-text { font-size: 13px; }
+.exec-alert-text strong { color: var(--gold); }
 
 /* ======================== TIMELINE ======================== */
-.roadmap { margin-bottom: 52px; }
+.roadmap { margin-bottom: 48px; }
 .timeline {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -115,25 +269,23 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
   top: 28px; left: 8%; right: 8%;
   height: 2px;
   background: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--blue), var(--green), var(--purple));
-  opacity: 0.4; z-index: 0;
+  opacity: 0.35; z-index: 0;
 }
-.tl-node {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  position: relative; z-index: 1; text-decoration: none;
-}
+.tl-node { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 1; cursor: pointer; text-decoration: none; }
 .tl-dot {
   width: 56px; height: 56px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; border: 2px solid;
+  font-size: 20px; border: 2px solid; transition: transform 0.2s;
 }
+.tl-node:hover .tl-dot { transform: scale(1.12); }
 .tl-dot.c1 { background: var(--red-bg); border-color: var(--red); }
 .tl-dot.c2 { background: var(--orange-bg); border-color: var(--orange); }
 .tl-dot.c3 { background: var(--yellow-bg); border-color: var(--yellow); }
 .tl-dot.c4 { background: var(--blue-bg); border-color: var(--blue); }
 .tl-dot.c5 { background: var(--green-bg); border-color: var(--green); }
 .tl-dot.c6 { background: var(--purple-bg); border-color: var(--purple); }
-.tl-label { text-align: center; font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.4; }
-.tl-dur { font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 8px; }
+.tl-label { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); line-height: 1.4; }
+.tl-dur { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 8px; }
 .tl-dur.c1 { background: var(--red-bg); color: var(--red); }
 .tl-dur.c2 { background: var(--orange-bg); color: var(--orange); }
 .tl-dur.c3 { background: var(--yellow-bg); color: var(--yellow); }
@@ -142,33 +294,25 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
 .tl-dur.c6 { background: var(--purple-bg); color: var(--purple); }
 
 /* ======================== PHASE CARDS ======================== */
-.phases { display: flex; flex-direction: column; gap: 24px; }
-
+.phases { display: flex; flex-direction: column; gap: 28px; }
 .phase-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
+  transition: border-color 0.2s;
 }
+.phase-card:hover { border-color: rgba(99,102,241,0.5); }
 .phase-header {
-  padding: 20px 26px;
-  display: flex; align-items: flex-start; gap: 16px;
+  padding: 18px 24px;
+  display: flex; align-items: center; gap: 14px;
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
 }
-.phase-color-bar {
-  width: 4px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 40px;
-}
-.pc1 { background: var(--red); }
-.pc2 { background: var(--orange); }
-.pc3 { background: var(--yellow); }
-.pc4 { background: var(--blue); }
-.pc5 { background: var(--green); }
-.pc6 { background: var(--purple); }
-
 .phase-icon {
-  width: 48px; height: 48px; border-radius: 12px;
+  width: 46px; height: 46px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
+  font-size: 20px; flex-shrink: 0;
 }
 .pi1 { background: var(--red-bg); border: 1px solid var(--red); }
 .pi2 { background: var(--orange-bg); border: 1px solid var(--orange); }
@@ -176,193 +320,664 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
 .pi4 { background: var(--blue-bg); border: 1px solid var(--blue); }
 .pi5 { background: var(--green-bg); border: 1px solid var(--green); }
 .pi6 { background: var(--purple-bg); border: 1px solid var(--purple); }
-
 .phase-meta { flex: 1; }
-.phase-num { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 3px; }
-.phase-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-.phase-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-.phase-badges {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;
-}
-.phase-timing {
-  font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap;
-}
+.phase-num { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); }
+.phase-title { font-size: 17px; font-weight: 700; margin: 1px 0; }
+.phase-desc { font-size: 12px; color: var(--muted); }
+.phase-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.phase-timing { font-size: 11px; font-weight: 700; padding: 4px 11px; border-radius: 20px; }
 .pt1 { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
 .pt2 { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange); }
 .pt3 { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow); }
 .pt4 { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); }
 .pt5 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
 .pt6 { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
-.phase-cost { font-size: 12px; color: var(--muted); font-weight: 600; }
+.phase-progress-mini { font-size: 11px; color: var(--muted); }
+.chevron { font-size: 14px; color: var(--muted); transition: transform 0.3s; margin-left: 6px; }
+.phase-card.collapsed .chevron { transform: rotate(-90deg); }
 
-/* ======================== SUMMARY STRIP ======================== */
-.phase-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
+/* ===== EXEC SUMMARY IN PHASE CARD (経営層ビュー) ===== */
+.phase-exec-summary {
+  background: var(--gold-bg);
+  border-bottom: 1px solid rgba(240,180,41,0.3);
+  padding: 12px 24px;
+  display: none;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
-.sum-block {
-  padding: 12px 20px;
-  border-right: 1px solid var(--border);
-}
-.sum-block:last-child { border-right: none; }
-.sum-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-.sum-label.c1 { color: var(--red); }
-.sum-label.c2 { color: var(--orange); }
-.sum-label.c3 { color: var(--yellow); }
-.sum-label.c4 { color: var(--blue); }
-.sum-label.c5 { color: var(--green); }
-.sum-label.c6 { color: var(--purple); }
-.sum-value { font-size: 12px; font-weight: 600; }
-.sum-note { font-size: 11px; color: var(--muted); }
+.phase-exec-summary.show { display: flex; }
+.exec-sum-block { font-size: 12px; }
+.exec-sum-label { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; margin-bottom: 3px; }
+.exec-sum-value { font-weight: 600; }
+.exec-sum-note { color: var(--muted); }
 
-/* ======================== ACTIONS ======================== */
-.phase-body { padding: 22px 26px; }
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 12px;
-}
-.action-item {
+/* ===== PHASE BODY ===== */
+.phase-body { padding: 20px 24px; }
+.phase-card.collapsed .phase-body { display: none; }
+.items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+
+/* ===== ITEM ===== */
+.item {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 14px 16px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  padding: 13px 15px;
+  display: flex; gap: 11px; align-items: flex-start;
+  transition: border-color 0.2s; cursor: pointer;
 }
-.action-num {
-  width: 22px; height: 22px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 800; flex-shrink: 0; margin-top: 1px;
-}
-.an1 { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
-.an2 { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange); }
-.an3 { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow); }
-.an4 { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); }
-.an5 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
-.an6 { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple); }
+.item:hover { border-color: var(--accent); }
+.item.done { opacity: 0.45; }
+.item.done .item-name { text-decoration: line-through; }
+/* Exec items get gold highlight in exec view */
+.exec-view .item.exec-item { border-left: 3px solid var(--gold); }
+/* Soumu items get blue highlight in soumu view */
+.soumu-view .item.soumu-item { border-left: 3px solid var(--soumu); }
+/* Hide exec-only items in soumu view and vice versa — we show all but dim irrelevant */
+.exec-view .item.soumu-only { opacity: 0.4; pointer-events: none; }
+.soumu-view .item.exec-only { opacity: 0.4; pointer-events: none; }
 
-.action-content { flex: 1; }
-.action-name { font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
-.action-detail { font-size: 11px; color: var(--muted); line-height: 1.55; margin-bottom: 8px; }
-.action-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.item-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border); border-radius: 4px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  margin-top: 2px; transition: all 0.2s; font-size: 11px; color: transparent;
+}
+.item.done .item-check { background: var(--green); border-color: var(--green); color: #fff; }
+.item-content { flex: 1; }
+.item-name { font-size: 13px; font-weight: 600; line-height: 1.45; }
+.item-detail { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.55; }
+.item-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
 .tag { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
 .t-low { background: var(--green-bg); color: var(--green); }
 .t-mid { background: var(--yellow-bg); color: var(--yellow); }
 .t-high { background: var(--orange-bg); color: var(--orange); }
 .t-xl { background: var(--red-bg); color: var(--red); }
+.t-soumu { background: var(--blue-bg); color: var(--soumu); border: 1px solid rgba(77,184,255,0.3); }
 .t-exec { background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(240,180,41,0.3); }
-.t-soumu { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(77,184,255,0.3); }
 .t-joint { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
 .t-law { background: var(--red-bg); color: var(--red); }
-.t-key { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); }
+.t-approval {
+  background: var(--gold-bg); color: var(--gold);
+  border: 1px solid var(--gold); font-size: 9px;
+}
 
-/* ======================== LEGEND ======================== */
+/* Exec-only description (shown only in exec view) */
+.exec-note {
+  display: none;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--gold-bg);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+  font-size: 11px;
+  color: var(--gold);
+}
+.exec-view .exec-note { display: block; }
+
+/* Soumu-only note */
+.soumu-note {
+  display: none;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--blue-bg);
+  border-left: 2px solid var(--soumu);
+  border-radius: 0 6px 6px 0;
+  font-size: 11px;
+  color: var(--soumu);
+}
+.soumu-view .soumu-note { display: block; }
+
+/* ======================== LEGEND & REFS ======================== */
 .legend {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 22px 26px;
-  margin-top: 40px;
-  display: flex; gap: 32px; flex-wrap: wrap;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-top: 36px;
+  display: flex; gap: 28px; flex-wrap: wrap;
 }
-.legend-group { flex: 1; min-width: 160px; }
-.legend-title { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
-.legend-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+.legend-group { flex: 1; min-width: 180px; }
+.legend-title { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 9px; }
+.legend-row { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-bottom: 5px; }
 .ldot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 .ref-box {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 26px;
+  border-radius: 12px;
+  padding: 18px 22px;
   margin-top: 16px;
 }
-.ref-box h3 { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+.ref-box h3 { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
 .ref-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.ref-item { font-size: 11px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; color: var(--blue); background: var(--blue-bg); }
+.ref-item { font-size: 11px; padding: 5px 11px; border: 1px solid var(--border); border-radius: 6px; color: var(--blue); background: var(--blue-bg); }
 
 /* ======================== FOOTER ======================== */
 footer {
-  text-align: center; padding: 24px;
+  text-align: center; padding: 22px;
   border-top: 1px solid var(--border);
   font-size: 11px; color: var(--muted);
-  max-width: 1200px; margin: 0 auto;
+  max-width: 1280px; margin: 0 auto;
 }
 
-/* ======================== RESPONSIVE ======================== */
-@media (max-width: 900px) {
-  header { padding: 24px 20px; }
-  main { padding: 28px 20px 60px; }
-  .timeline { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .timeline::before { display: none; }
-  .actions-grid { grid-template-columns: 1fr; }
-  .phase-summary { grid-template-columns: repeat(2, 1fr); }
-  .phase-header { flex-wrap: wrap; }
-  .phase-badges { flex-direction: row; align-items: center; }
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+/* ======================== PRINT ======================== */
+/* ======================== PROFILE BANNER ======================== */
+.profile-banner{
+  background:linear-gradient(90deg,rgba(99,102,241,.08) 0%,rgba(77,184,255,.06) 100%);
+  border-bottom:1px solid rgba(99,102,241,.25);
+  padding:9px 40px;
+  display:none;align-items:center;gap:10px;flex-wrap:wrap;
+  position:sticky;top:45px;z-index:190;
+  backdrop-filter:blur(6px);
 }
-@media (max-width: 540px) {
-  .timeline { grid-template-columns: repeat(2, 1fr); }
-  .kpi-grid { grid-template-columns: 1fr; }
-  .phase-summary { grid-template-columns: 1fr; }
+.profile-banner.visible{display:flex;}
+.profile-banner-icon{font-size:14px;flex-shrink:0;}
+.profile-banner-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+.profile-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.profile-chip{
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
+  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);color:var(--text);
+  white-space:nowrap;
+}
+.profile-chip.chip-score{
+  background:rgba(61,220,151,.12);border-color:rgba(61,220,151,.25);color:var(--green);
+}
+.profile-chip.chip-score.score-warn{
+  background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.25);color:var(--yellow);
+}
+.profile-chip.chip-name{
+  background:rgba(240,180,41,.12);border-color:rgba(240,180,41,.25);color:var(--gold);font-size:12px;
+}
+.profile-banner-actions{display:flex;gap:8px;align-items:center;margin-left:auto;}
+.profile-agent-link{
+  font-size:10px;font-weight:700;padding:4px 12px;border-radius:6px;
+  background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);
+  color:var(--accent);text-decoration:none;white-space:nowrap;transition:all .2s;
+}
+.profile-agent-link:hover{background:rgba(99,102,241,.25);}
+.profile-clear-btn{
+  font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.profile-clear-btn:hover{border-color:var(--red);color:var(--red);}
+.profile-no-agent{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(99,102,241,.04);border-bottom:1px solid var(--border);
+  padding:7px 40px;
+  position:sticky;top:45px;z-index:190;
+}
+.profile-no-agent a{
+  font-size:11px;font-weight:700;color:var(--accent);text-decoration:none;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);
+  padding:4px 12px;border-radius:6px;transition:background .2s;
+}
+.profile-no-agent a:hover{background:rgba(99,102,241,.2);}
+.profile-no-agent span{font-size:11px;color:var(--muted);}
+
+/* エージェント連携バッジ */
+.badge-agent{background:rgba(61,220,151,.1);color:var(--green);border:1px solid rgba(61,220,151,.3);animation:pulse-badge 2s ease-in-out infinite;}
+@keyframes pulse-badge{0%,100%{opacity:1;}50%{opacity:.65;}}
+
+/* CRITICAL強調（エージェント連携時） */
+.agent-critical .item[data-agent-critical="true"]{
+  border-left:3px solid var(--red);
+  background:rgba(255,77,109,.04);
+}
+.agent-critical .item[data-agent-critical="true"] .item-name::after{
+  content:" ★エージェント最優先";font-size:9px;font-weight:700;
+  color:var(--red);margin-left:8px;vertical-align:middle;
 }
 
+/* ======================== EXPORT FAB ======================== */
+.export-fab{
+  position:fixed;bottom:28px;right:28px;z-index:500;
+  background:linear-gradient(135deg,var(--accent),#4db8ff);
+  border:none;border-radius:50px;padding:12px 20px;
+  color:#fff;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 24px rgba(99,102,241,.4);
+  display:flex;align-items:center;gap:8px;transition:all .2s;
+}
+.export-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.5);}
+.export-overlay{
+  display:none;position:fixed;inset:0;z-index:490;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+}
+.export-overlay.open{display:block;}
+.export-panel{
+  position:fixed;bottom:88px;right:28px;z-index:500;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:20px;width:290px;
+  box-shadow:0 12px 48px rgba(0,0,0,.6);
+  transform:translateY(12px) scale(.97);opacity:0;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+}
+.export-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+.exp-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.exp-progress-line{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.exp-progress-line span:last-child{font-weight:700;color:var(--accent);}
+.exp-opts{display:flex;flex-direction:column;gap:7px;}
+.exp-opt{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:all .18s;font-family:inherit;color:var(--text);
+  text-align:left;width:100%;
+}
+.exp-opt:hover{border-color:var(--accent);background:var(--surface3);}
+.exp-opt-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.exp-opt-label{font-size:12px;font-weight:700;display:block;}
+.exp-opt-desc{font-size:10px;color:var(--muted);display:block;margin-top:1px;}
+.exp-toast{
+  position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--green-bg);border:1px solid var(--green);border-radius:8px;
+  padding:9px 18px;font-size:12px;font-weight:700;color:var(--green);
+  z-index:600;opacity:0;transition:all .3s;white-space:nowrap;
+}
+.exp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ======================== PRINT ======================== */
 @media print {
-  body { background: #fff; color: #000; }
-  header { position: static; background: #fff; }
+  *{color:#000!important;background:#fff!important;border-color:#ccc!important;box-shadow:none!important;-webkit-text-fill-color:#000!important;}
+  .view-bar,.export-fab,.export-panel,.export-overlay,nav,footer{display:none!important;}
+  header{position:static!important;background:#fff!important;border-bottom:2px solid #000!important;padding:16px 24px!important;}
+  h1{background:none!important;color:#000!important;font-size:20px!important;}
+  .subtitle,.badge{color:#444!important;}
+  .badge{border:1px solid #999!important;background:#eee!important;}
+  .progress-card{background:#f5f5f5!important;border:1px solid #ccc!important;}
+  .prog-bar-track{background:#ddd!important;}
+  .prog-bar-fill{background:#333!important;}
+  .phase-card{break-inside:avoid;margin-bottom:16px!important;border:1px solid #ccc!important;}
+  .phase-card.collapsed .phase-body{display:block!important;}
+  .phase-header{background:#f5f5f5!important;border-bottom:1px solid #ccc!important;padding:10px 14px!important;}
+  .item{border-bottom:1px solid #eee!important;}
+  .item.done{background:#f0fff8!important;}
+  .item-check{border:2px solid #333!important;background:#fff!important;}
+  .item.done .item-check{background:#333!important;color:#fff!important;}
+  .prio-tag,.cost-tag,.dept-tag{background:#eee!important;color:#333!important;border:1px solid #ccc!important;}
+  .exec-view .item.soumu-only,
+  .soumu-view .item.exec-only{display:none!important;}
+  .exec-dashboard,.invest-table-wrap{break-inside:avoid;}
+  main{max-width:100%!important;padding:0 12px!important;}
+  .exec-kpi-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .exec-kpi-card{background:#f5f5f5!important;border:1px solid #ccc!important;}
+  .exec-kpi-num{color:#000!important;}
+  .invest-table th{background:#eee!important;}
+}
+
+/* ======================== RESPONSIVE — TABLET ======================== */
+@media (max-width: 900px) {
+  .header-inner { gap: 12px; }
+  .audience-indicator { display: none; }
+  .progress-card { min-width: 140px; }
+  .invest-table { font-size: 12px; }
+  .invest-table th, .invest-table td { padding: 8px 10px; }
+}
+
+/* ======================== RESPONSIVE — MOBILE ======================== */
+@media (max-width: 768px) {
+  .profile-banner{ padding:7px 12px; top:40px; }
+  .profile-banner-label{ display:none; }
+  .profile-chip.chip-name{ font-size:12px; }
+  .profile-chip:not(.chip-name):not(.chip-score){ display:none; }
+  .profile-banner-actions a{ display:none; }
+  .profile-no-agent{ padding:6px 12px; top:40px; }
+  .profile-no-agent span:first-of-type{ display:none; }
+
+  /* --- VIEW BAR: コンパクトに --- */
+  .view-bar {
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .view-label { display: none; }
+  .view-hint { display: none; }
+  .view-toggle { flex: 1; }
+  .view-btn {
+    flex: 1;
+    padding: 8px 6px;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  /* --- HEADER: コンパクト固定 --- */
+  header {
+    padding: 10px 12px;
+    top: 41px;
+    position: sticky;
+  }
+  .header-inner {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .header-left { min-width: unset; }
+  .badge-row { margin-bottom: 4px; }
+  h1 { font-size: 16px; line-height: 1.35; }
+  .subtitle { font-size: 11px; margin-top: 3px; }
+  .audience-indicator { display: none; }
+  .progress-card {
+    width: 100%;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row;
+  }
+  .prog-label { margin-bottom: 0; white-space: nowrap; }
+  .prog-count { font-size: 16px; }
+  .prog-bar-wrap { flex: 1; margin-top: 0; }
+
+  /* --- NAV: 横スクロール --- */
+  nav {
+    padding: 8px 12px;
+    top: 128px;
+  }
+  .nav-inner { gap: 5px; }
+  .nav-pill { font-size: 10px; padding: 5px 10px; }
+
+  /* --- MAIN --- */
+  main { padding: 16px 12px 60px; }
+
+  /* --- EXEC DASHBOARD: スタック表示 --- */
+  .exec-alert { padding: 10px 12px; gap: 8px; }
+  .exec-alert-icon { font-size: 16px; }
+  .exec-alert-text { font-size: 12px; }
+
+  /* KPIカード: 2列 */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .kpi-card { padding: 12px; }
+  .kpi-icon { font-size: 18px; margin-bottom: 6px; }
+  .kpi-value { font-size: 20px; }
+  .kpi-label { font-size: 11px; }
+  .kpi-note { font-size: 9px; }
+
+  /* 投資テーブル: 横スクロール */
+  .invest-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+  .invest-table {
+    font-size: 11px;
+    min-width: 560px;
+  }
+  .invest-table th, .invest-table td { padding: 8px 10px; }
+  .decision-badge { font-size: 9px; padding: 2px 6px; }
+
+  /* --- TIMELINE: 2×3グリッド --- */
+  .timeline {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    row-gap: 16px;
+  }
+  .timeline::before { display: none; }
+  .tl-dot { width: 46px; height: 46px; font-size: 17px; }
+  .tl-label { font-size: 9px; }
+  .tl-dur { font-size: 8px; padding: 1px 5px; }
+
+  /* --- ROADMAP セクション --- */
+  .roadmap { margin-bottom: 28px; }
+  .section-heading { font-size: 10px; }
+
+  /* --- PHASE CARDS --- */
+  .phases { gap: 16px; }
+  .phase-card { border-radius: 12px; }
+  .phase-header {
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .phase-icon { width: 38px; height: 38px; font-size: 16px; border-radius: 8px; }
+  .phase-num { font-size: 9px; }
+  .phase-title { font-size: 14px; }
+  .phase-desc { display: none; }   /* スマホでは省略 */
+  .phase-right { gap: 3px; }
+  .phase-timing { font-size: 10px; padding: 3px 8px; }
+  .phase-progress-mini { font-size: 10px; }
+  .chevron { font-size: 12px; margin-left: 4px; }
+
+  /* Exec summary strip: コンパクト */
+  .phase-exec-summary {
+    padding: 8px 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .exec-sum-label { font-size: 9px; }
+  .exec-sum-value { font-size: 11px; }
+  .exec-sum-note { font-size: 10px; }
+
+  /* --- ITEMS --- */
+  .phase-body { padding: 12px 14px; }
+  .items-grid { grid-template-columns: 1fr; gap: 8px; }
+  .item { padding: 12px 13px; gap: 10px; }
+  .item-check { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; }
+  .item-name { font-size: 13px; }
+  .item-detail { font-size: 11px; }
+  .item-tags { gap: 4px; margin-top: 6px; }
+  .tag { font-size: 9px; padding: 2px 6px; }
+  .exec-note { font-size: 10px; padding: 7px 9px; margin-top: 5px; }
+  .soumu-note { font-size: 10px; padding: 7px 9px; margin-top: 5px; }
+
+  /* --- LEGEND --- */
+  .legend {
+    flex-direction: column;
+    gap: 16px;
+    padding: 14px 16px;
+    margin-top: 24px;
+  }
+  .legend-group { min-width: unset; }
+  .legend-title { font-size: 9px; margin-bottom: 7px; }
+  .legend-row { font-size: 11px; }
+
+  /* --- REF BOX --- */
+  .ref-box { padding: 14px 16px; margin-top: 12px; }
+  .ref-list { gap: 6px; }
+  .ref-item { font-size: 10px; padding: 4px 9px; }
+
+  /* --- FOOTER --- */
+  footer { font-size: 10px; padding: 16px 12px; }
+}
+
+/* ======================== RESPONSIVE — 小型スマホ ======================== */
+@media (max-width: 390px) {
+  .view-btn { font-size: 10px; padding: 7px 4px; }
+  h1 { font-size: 14px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-value { font-size: 18px; }
+  .timeline { grid-template-columns: repeat(2, 1fr); }
+  .phase-title { font-size: 13px; }
+  .item-name { font-size: 12px; }
+  .nav-pill { font-size: 9px; padding: 4px 8px; }
 }
 </style>
 </head>
-<body>
+<body class="exec-view">
 
+<!-- VIEW TOGGLE BAR -->
+<div class="view-bar">
+  <span class="view-label">閲覧モード：</span>
+  <div class="view-toggle">
+    <button class="view-btn active-exec" id="btn-exec" onclick="setView('exec')">👔 経営層ビュー</button>
+    <button class="view-btn" id="btn-soumu" onclick="setView('soumu')">📋 総務部ビュー</button>
+  </div>
+  <span class="view-hint" id="view-hint">経営層向け：意思決定・リスク・投資判断を重点表示</span>
+  <a href="guide.html" style="font-size:11px;font-weight:700;padding:5px 11px;border-radius:7px;border:1px solid var(--border);color:var(--muted);text-decoration:none;white-space:nowrap;">📖 使い方</a>
+  <button onclick="toggleRoadmapExport()" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);border-radius:8px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;white-space:nowrap;">⬇ エクスポート</button>
+</div>
+
+<!-- PROFILE BANNER (エージェント連携中) -->
+<div class="profile-banner" id="profile-banner">
+  <span class="profile-banner-icon">🔗</span>
+  <span class="profile-banner-label">エージェント連携中</span>
+  <div class="profile-chips" id="profile-chips"></div>
+  <div class="profile-banner-actions">
+    <a href="agent.html" class="profile-agent-link">⚡ エージェントを開く</a>
+    <button class="profile-clear-btn" onclick="clearSharedProfile()">✕ 解除</button>
+  </div>
+</div>
+
+<!-- NO-PROFILE HINT (未連携時) -->
+<div class="profile-no-agent" id="profile-no-agent" style="display:none;">
+  <span>⚡</span>
+  <span>企業プロファイルを入力すると、このロードマップが貴社向けにカスタマイズされます →</span>
+  <a href="agent.html">BCPエージェントで分析する</a>
+</div>
+
+<!-- HEADER -->
 <header>
   <div class="header-inner">
-    <div class="badge-row">
-      <span class="badge badge-quake">都市直下型地震対策</span>
-      <span class="badge badge-target">企業・法人向け</span>
-      <span class="badge badge-date">2026年版</span>
+    <div class="header-left">
+      <div class="badge-row">
+        <span class="badge badge-quake">都市直下型地震対策</span>
+        <span class="badge badge-target">企業・法人向け</span>
+        <span class="badge badge-date">2026年版</span>
+      </div>
+      <h1>企業防災ロードマップ<br>〜最適な備えの順序と優先度〜</h1>
+      <p class="subtitle">中規模企業（50〜300名）｜BCP策定・防災整備の実行計画図解</p>
     </div>
-    <h1>企業防災ロードマップ<br>〜最適な備えの順序と優先度〜</h1>
-    <p class="subtitle">中規模企業（50〜300名）｜BCP策定・防災整備の実行計画図解</p>
-
-    <div class="kpi-grid">
-      <div class="kpi-card kpi-red">
-        <div class="kpi-icon">⚡</div>
-        <div class="kpi-value">70<span class="kpi-unit">%</span></div>
-        <div class="kpi-label">今後30年の首都直下地震発生確率</div>
-        <div class="kpi-note">M7クラス想定（内閣府・地震調査研究推進本部）</div>
+    <div class="audience-indicator">
+      <div class="aud-card active-exec" id="aud-exec">
+        <div class="aud-role">👔 経営層の役割</div>
+        <div class="aud-desc">意思決定・予算承認・方針策定</div>
+        <div class="aud-focus">リスク・投資・法的責任を把握</div>
       </div>
-      <div class="kpi-card kpi-orange">
-        <div class="kpi-icon">🏢</div>
-        <div class="kpi-value">約30<span class="kpi-unit">%</span></div>
-        <div class="kpi-label">被災後2年以内に廃業した中小企業の割合</div>
-        <div class="kpi-note">BCP未策定企業のリスクは有策企業の2倍以上</div>
+      <div class="aud-card" id="aud-soumu">
+        <div class="aud-role">📋 総務部の役割</div>
+        <div class="aud-desc">実務推進・ベンダー管理・法令対応</div>
+        <div class="aud-focus">チェックリスト・実施手順を管理</div>
       </div>
-      <div class="kpi-card kpi-gold">
-        <div class="kpi-icon">💴</div>
-        <div class="kpi-value">〜500<span class="kpi-unit">万円</span></div>
-        <div class="kpi-label">中規模企業の防災投資目安（全フェーズ合計）</div>
-        <div class="kpi-note">Phase1〜3の優先対応のみなら〜100万円で整備可能</div>
-      </div>
-      <div class="kpi-card kpi-green">
-        <div class="kpi-icon">⚖️</div>
-        <div class="kpi-value">3<span class="kpi-unit">法令</span></div>
-        <div class="kpi-label">企業に義務を課す主要防災関連法令</div>
-        <div class="kpi-note">消防法・労働安全衛生法・建築基準法。違反は罰則対象</div>
+      <div class="progress-card">
+        <div class="prog-label">対策完了状況</div>
+        <div class="prog-count"><span id="done-count">0</span>/<span id="total-count">0</span><small> 項目</small></div>
+        <div class="prog-bar-wrap"><div class="prog-bar-fill" id="prog-fill"></div></div>
       </div>
     </div>
   </div>
 </header>
 
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#phase1" class="nav-pill c1">🔴 Phase1 人命・初動</a>
+    <a href="#phase2" class="nav-pill c2">🟠 Phase2 組織・体制</a>
+    <a href="#phase3" class="nav-pill c3">🟡 Phase3 備蓄・設備</a>
+    <a href="#phase4" class="nav-pill c4">🔵 Phase4 情報・通信</a>
+    <a href="#phase5" class="nav-pill c5">🟢 Phase5 事業継続</a>
+    <a href="#phase6" class="nav-pill c6">🟣 Phase6 継続改善</a>
+  </div>
+</nav>
+
 <main>
 
-<!-- TIMELINE -->
+<!-- ======================== EXEC DASHBOARD ======================== -->
+<div class="exec-dashboard show" id="exec-dashboard">
+  <div class="section-heading">経営層ダッシュボード — リスク・投資・意思決定サマリー</div>
+
+  <!-- Alert -->
+  <div class="exec-alert">
+    <div class="exec-alert-icon">⚠️</div>
+    <div class="exec-alert-text">
+      <strong>首都直下地震の発生確率は今後30年以内に70%。</strong>
+      被災した企業の約30%は2年以内に廃業しています（中小企業庁調査）。
+      防災投資は<strong>コストではなくリスクヘッジ</strong>です。下記ロードマップに沿って段階的に整備することで、最小コストで最大の事業継続力を確保できます。
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-red">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-value">70<span class="kpi-unit">%</span></div>
+      <div class="kpi-label">今後30年の首都直下地震発生確率</div>
+      <div class="kpi-note">M7クラス想定（内閣府・地震調査研究推進本部）</div>
+    </div>
+    <div class="kpi-card kpi-orange">
+      <div class="kpi-icon">🏢</div>
+      <div class="kpi-value">約30<span class="kpi-unit">%</span></div>
+      <div class="kpi-label">被災後2年以内に廃業した中小企業の割合</div>
+      <div class="kpi-note">BCP未策定企業のリスクは有策企業の2倍以上</div>
+    </div>
+    <div class="kpi-card kpi-gold">
+      <div class="kpi-icon">💴</div>
+      <div class="kpi-value">〜500<span class="kpi-unit">万円</span></div>
+      <div class="kpi-label">中規模企業の最低限の防災投資目安（全フェーズ合計）</div>
+      <div class="kpi-note">Phase1〜3の優先対応のみなら〜100万円で整備可能</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon">⚖️</div>
+      <div class="kpi-value">3<span class="kpi-unit">法令</span></div>
+      <div class="kpi-label">企業に義務を課す主要防災関連法令</div>
+      <div class="kpi-note">消防法・労働安全衛生法・建築基準法。違反は行政指導・罰則の対象</div>
+    </div>
+  </div>
+
+  <!-- Investment summary table -->
+  <div class="section-heading" style="margin-top:8px;">フェーズ別　投資規模・決裁区分・経営リスク一覧</div>
+  <div class="invest-table-wrap">
+  <table class="invest-table">
+    <thead>
+      <tr>
+        <th>フェーズ</th>
+        <th>期限目安</th>
+        <th>想定コスト</th>
+        <th>決裁区分</th>
+        <th>未対応時の主なリスク</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:var(--red)">Phase1｜人命・初動</strong></td>
+        <td>即日〜1週間</td>
+        <td>〜30万円</td>
+        <td><span class="decision-badge decision-soumu">総務部主導</span></td>
+        <td>法令違反・従業員への安全配慮義務違反・労災リスク</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--orange)">Phase2｜組織・体制</strong></td>
+        <td>〜1ヶ月</td>
+        <td>〜50万円</td>
+        <td><span class="decision-badge decision-joint">経営承認必要</span></td>
+        <td>指揮系統の不在による混乱・消防法上の防火管理義務違反</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--yellow)">Phase3｜備蓄・設備</strong></td>
+        <td>〜3ヶ月</td>
+        <td>〜150万円</td>
+        <td><span class="decision-badge decision-joint">経営承認必要</span></td>
+        <td>帰宅困難者対策条例違反・従業員保護義務の不履行</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--blue)">Phase4｜情報・通信</strong></td>
+        <td>〜6ヶ月</td>
+        <td>〜100万円</td>
+        <td><span class="decision-badge decision-joint">経営承認必要</span></td>
+        <td>顧客対応不能・信用損失・データ消失による事業停止</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--green)">Phase5｜事業継続</strong></td>
+        <td>〜12ヶ月</td>
+        <td>〜200万円</td>
+        <td><span class="decision-badge decision-exec">経営層主導</span></td>
+        <td>BCP未策定による取引先・金融機関からの信頼喪失・廃業リスク</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--purple)">Phase6｜継続改善</strong></td>
+        <td>年次継続</td>
+        <td>年間〜50万円</td>
+        <td><span class="decision-badge decision-joint">経営承認必要</span></td>
+        <td>対策の陳腐化・訓練未実施による実効性低下</td>
+      </tr>
+    </tbody>
+  </table>
+  </div><!-- /invest-table-wrap -->
+</div>
+
+<!-- ======================== ROADMAP ======================== -->
 <div class="roadmap">
   <div class="section-heading">全体ロードマップ</div>
   <div class="timeline">
@@ -399,623 +1014,686 @@ footer {
   </div>
 </div>
 
-<!-- PHASES -->
+<!-- ======================== PHASES ======================== -->
 <div class="phases">
 
 <!-- PHASE 1 -->
 <div class="phase-card" id="phase1">
-  <div class="phase-header">
-    <div class="phase-color-bar pc1"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi1">🆘</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 01 — 最優先 ／ 法令義務を含む</div>
       <div class="phase-title">人命安全・初動体制の確立</div>
       <div class="phase-desc">地震発生直後に機能する「生命を守る仕組み」を最初に整備する。多くが法定義務。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt1">即日〜1週間以内</span>
-      <span class="phase-cost">想定コスト：〜30万円</span>
+      <span class="phase-progress-mini" id="prog1">0/6 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c1">経営インパクト</div>
-      <div class="sum-value">法令違反・労災リスク</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c1">経営層の決定事項</div>
-      <div class="sum-value">予算承認のみ（実務は総務部主導）</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c1">未対応リスク</div>
-      <div class="sum-note">安全配慮義務違反・消防法違反による行政指導・罰則</div>
-    </div>
+  <!-- Exec summary strip -->
+  <div class="phase-exec-summary show" id="exec-sum1">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">法令違反・労災リスク</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">フェーズ想定コスト</div><div class="exec-sum-value">〜30万円</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">予算承認のみ（実務は総務部主導）</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">未対応リスク</div><div class="exec-sum-value exec-sum-note">安全配慮義務違反・消防法違反による行政指導・罰則</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an1">1</div>
-        <div class="action-content">
-          <div class="action-name">緊急避難経路・避難場所の確認と掲示更新</div>
-          <div class="action-detail">各フロアの避難経路図・非常口・集合場所を更新し全従業員に周知。年1回以上の見直しが必要。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">緊急避難経路・避難場所の確認と掲示更新</div>
+          <div class="item-detail">各フロアの避難経路図・非常口・集合場所を更新し全従業員に周知。年1回以上の見直しが必要。</div>
+          <div class="exec-note">📌 消防計画の届出義務あり。未整備は消防法違反として指摘対象。</div>
+          <div class="soumu-note">📋 実施担当：総務部／作業工数：半日〜1日／消防署への届出を忘れずに</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">消防法</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an1">2</div>
-        <div class="action-content">
-          <div class="action-name">安否確認システムの導入と訓練実施</div>
-          <div class="action-detail">安否確認サービスを導入し、全従業員登録後に訓練を実施。輻輳時でも機能する仕組みを確保する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">安否確認システムの導入と訓練実施</div>
+          <div class="item-detail">安否確認サービス（安否確認くん・YellowFin等）を導入し、全従業員登録後に訓練を実施。輻輳時でも機能する仕組みを確保する。</div>
+          <div class="exec-note">📌 発災後72時間以内の全員安否確認が顧客・取引先への説明義務に直結。</div>
+          <div class="soumu-note">📋 比較推奨：安否確認くん（月額〜3万円）・TotalBCP（初期30万〜）。従業員スマホ登録率100%を必達目標に。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an1">3</div>
-        <div class="action-content">
-          <div class="action-name">緊急連絡網の整備・最新化（3系統確保）</div>
-          <div class="action-detail">役員・部門長・担当者の連絡先を携帯・固定・代替の3系統で管理。紙の連絡網も必ず保管。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">緊急連絡網の整備・最新化（3系統確保）</div>
+          <div class="item-detail">役員・部門長・担当者の連絡先を携帯・固定・代替の3系統で管理。異動・退職のたびに更新する運用ルールを設ける。</div>
+          <div class="exec-note">📌 役員の緊急連絡先が不明確な事例が多発。役員分は経営層が直接確認・承認を。</div>
+          <div class="soumu-note">📋 紙の連絡網も必ず作成・保管（停電・スマホ充電切れを想定）。更新担当者を明記。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an1">4</div>
-        <div class="action-content">
-          <div class="action-name">AED・救急用品の設置確認と使用期限管理</div>
-          <div class="action-detail">AED設置場所・使用期限を確認。救急箱を各フロアに配備し、全従業員に使用方法を周知する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">AED・救急用品の設置確認と使用期限管理</div>
+          <div class="item-detail">AED設置場所・使用期限を確認。救急箱を各フロアに配備し、全従業員に使用方法を周知する。</div>
+          <div class="exec-note">📌 AED設置・管理の不備は労働安全衛生法上の安全配慮義務違反につながる。</div>
+          <div class="soumu-note">📋 AEDパッドの有効期限（機種により2〜4年）とバッテリー残量を年1回チェック。記録簿を作成。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">労安法</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an1">5</div>
-        <div class="action-content">
-          <div class="action-name">オフィス内の家具・什器の転倒防止措置</div>
-          <div class="action-detail">書棚・PC・サーバーラック等をL字金具・ベルトで固定。危険箇所リストを作成し優先順で実施。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">オフィス内の家具・什器の転倒防止措置</div>
+          <div class="item-detail">書棚・PC・サーバーラック等をL字金具・ベルトで固定。危険箇所リストを作成し優先順で実施。</div>
+          <div class="exec-note">📌 什器転倒による従業員の怪我は会社の安全配慮義務違反として損害賠償請求対象になる。</div>
+          <div class="soumu-note">📋 施設管理会社に依頼する場合のコスト目安：50席規模で10〜20万円。実施前後の写真記録を必ず残す。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an1">6</div>
-        <div class="action-content">
-          <div class="action-name">帰宅困難者対応方針の策定と周知</div>
-          <div class="action-detail">発災時に帰宅できない従業員への対応ルール（施設滞在・食事・情報提供・宿泊）を文書化し社内掲示する。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">帰宅困難者対応方針の策定と周知</div>
+          <div class="item-detail">発災時に帰宅できない従業員への対応ルール（施設滞在・食事・情報提供・宿泊）を文書化し社内掲示する。</div>
+          <div class="exec-note">📌 東京都条例では従業員の3日分の帰宅困難者対策が義務。違反は是正指導の対象。方針決定は経営判断が必要。</div>
+          <div class="soumu-note">📋 対象人数×3日分の食料・水の備蓄数量を算出し購買部門に発注。フロア別の滞在スペースも事前に確保。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-joint">経営承認必要</span>
             <span class="tag t-law">東京都条例</span>
-            <span class="tag t-key">★経営承認</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- PHASE 2 -->
 <div class="phase-card" id="phase2">
-  <div class="phase-header">
-    <div class="phase-color-bar pc2"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi2">🏗️</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 02 — 高優先 ／ 経営承認が必要</div>
       <div class="phase-title">防災組織・役割分担の設計</div>
       <div class="phase-desc">「誰が何をするか」を明確にする組織体制と訓練の仕組みを作る。経営層の意思表明が不可欠。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt2">1週間〜1ヶ月以内</span>
-      <span class="phase-cost">想定コスト：〜50万円</span>
+      <span class="phase-progress-mini" id="prog2">0/6 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c2">経営インパクト</div>
-      <div class="sum-value">指揮系統の確立・法定義務</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c2">経営層の決定事項</div>
-      <div class="sum-value">防災責任者の選任・予算承認・方針表明</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c2">未対応リスク</div>
-      <div class="sum-note">消防法上の防火管理者未選任は罰則対象（30万円以下の罰金）</div>
-    </div>
+  <div class="phase-exec-summary show" id="exec-sum2">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">指揮系統の確立・法定義務</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">フェーズ想定コスト</div><div class="exec-sum-value">〜50万円</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">防災責任者の選任・予算承認・方針表明</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">未対応リスク</div><div class="exec-sum-value exec-sum-note">消防法上の防火管理者未選任は罰則対象（30万円以下の罰金）</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an2">1</div>
-        <div class="action-content">
-          <div class="action-name">防災責任者・防火管理者の選任（経営判断）</div>
-          <div class="action-detail">法令上の防火管理者（消防法）を選任し、BCPを推進する防災担当者を社内規程で任命する。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">防災責任者・防火管理者の選任（経営判断）</div>
+          <div class="item-detail">法令上の防火管理者（消防法）を選任し、BCPを推進する防災担当者を社内規程で任命する。役割と権限を文書化。</div>
+          <div class="exec-note">📌 防火管理者は延べ面積300㎡以上で法定義務。未選任は消防法違反・30万円以下の罰金。<br>→ <strong>経営層が正式に選任・辞令発令する必要あり</strong></div>
+          <div class="soumu-note">📋 防火管理者講習（甲種：2日間、乙種：1日間）への受講手配。消防署への届出を3ヶ月以内に完了。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-exec">経営層主導</span>
             <span class="tag t-law">消防法</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an2">2</div>
-        <div class="action-content">
-          <div class="action-name">防災委員会の設置と経営層への定期報告体制</div>
-          <div class="action-detail">各部門代表を含む防災委員会を設置。四半期に1回、経営会議に進捗報告を行う仕組みを作る。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">防災委員会の設置と経営層への定期報告体制</div>
+          <div class="item-detail">各部門代表を含む防災委員会を設置。四半期に1回、経営会議に進捗報告を行う仕組みを作る。</div>
+          <div class="exec-note">📌 防災投資は経営課題。取締役会への報告義務を設けることで、全社の本気度が変わる。</div>
+          <div class="soumu-note">📋 委員会規程の作成・委員の選定・議事録管理を総務部が担当。初回会議は経営層が出席して方針を表明する。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-joint">経営承認必要</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an2">3</div>
-        <div class="action-content">
-          <div class="action-name">消防訓練の年2回実施計画と届出</div>
-          <div class="action-detail">避難訓練・安否確認訓練・初期消火訓練を年2回（春・秋）に計画。参加率90%以上を目標とする。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">消防訓練の年2回実施計画と届出</div>
+          <div class="item-detail">避難訓練・安否確認訓練・初期消火訓練を年2回（春・秋）に計画。参加率90%以上を目標とし実施記録を保管。</div>
+          <div class="exec-note">📌 消防訓練の実施は法定義務。未実施は消防署の立入検査で是正指導の対象。</div>
+          <div class="soumu-note">📋 訓練実施報告書を消防署に提出。外部講師（消防署・民間）の手配は2ヶ月前から。参加率を経営会議で報告する。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">消防法</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an2">4</div>
-        <div class="action-content">
-          <div class="action-name">全従業員への防災教育・研修の実施</div>
-          <div class="action-detail">新入社員研修への防災教育組み込み。年1回のeラーニングまたは全社防災セミナーを実施する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">全従業員への防災教育・研修の実施</div>
+          <div class="item-detail">新入社員研修への防災教育組み込み。年1回のeラーニングまたは全社防災セミナーを実施する。</div>
+          <div class="exec-note">📌 従業員の防災知識不足は「会社が教育義務を怠った」として安全配慮義務違反に問われうる。</div>
+          <div class="soumu-note">📋 eラーニング教材（BizLearn等）の選定・契約が最も効率的。受講記録を保管し、法定訓練との区別を明確に。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an2">5</div>
-        <div class="action-content">
-          <div class="action-name">建物の耐震診断・補強工事の意思決定</div>
-          <div class="action-detail">旧耐震基準（1981年以前）の建物は耐震診断を実施。必要に応じて補強工事または移転を検討する。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">建物の耐震診断・補強工事の意思決定</div>
+          <div class="item-detail">旧耐震基準（1981年以前）の建物は耐震診断を実施。必要に応じて補強工事または移転を検討する。</div>
+          <div class="exec-note">📌 旧耐震基準の建物で人的被害が発生した場合、会社の使用者責任（民法415条）が問われる可能性がある。補強工事費用は助成金対応可能なケースあり（東京都など）。<br>→ <strong>最終判断は経営層が行う</strong></div>
+          <div class="soumu-note">📋 建築士・耐震診断機関への診断依頼（費用：建物規模により20〜100万円）。診断結果を経営層に報告し判断を仰ぐ。</div>
+          <div class="item-tags">
             <span class="tag t-xl">コスト：大</span>
             <span class="tag t-exec">経営層主導</span>
             <span class="tag t-law">建築基準法</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an2">6</div>
-        <div class="action-content">
-          <div class="action-name">従業員の自宅防災状況の把握と支援制度検討</div>
-          <div class="action-detail">アンケートで自宅の耐震・備蓄状況を把握。備蓄品購入補助・耐震診断費補助などの福利厚生制度を検討する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">従業員の自宅防災状況の把握と支援制度検討</div>
+          <div class="item-detail">アンケートで自宅の耐震・備蓄状況を把握。備蓄品購入補助・耐震診断費補助などの福利厚生制度を検討する。</div>
+          <div class="exec-note">📌 自宅被災した従業員は出社困難になる。従業員の個人防災力向上は事業継続の土台。福利厚生として採用活動にも有効。</div>
+          <div class="soumu-note">📋 アンケート設計・集計・分析を総務部が実施。支援制度の導入は人事部と連携し経営層に提案する。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- PHASE 3 -->
 <div class="phase-card" id="phase3">
-  <div class="phase-header">
-    <div class="phase-color-bar pc3"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi3">📦</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 03 — 重要 ／ 予算承認が必要</div>
       <div class="phase-title">備蓄・防災設備の整備</div>
       <div class="phase-desc">72時間（3日間）の自立を可能にする物資・設備を確保する。条例義務を含む。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt3">1〜3ヶ月以内</span>
-      <span class="phase-cost">想定コスト：〜150万円</span>
+      <span class="phase-progress-mini" id="prog3">0/6 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c3">経営インパクト</div>
-      <div class="sum-value">条例義務・従業員保護</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c3">経営層の決定事項</div>
-      <div class="sum-value">予算承認・設備投資判断</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c3">未対応リスク</div>
-      <div class="sum-note">帰宅困難者条例違反・停電時の業務停止・従業員保護義務不履行</div>
-    </div>
+  <div class="phase-exec-summary show" id="exec-sum3">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">条例義務・従業員保護</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">フェーズ想定コスト</div><div class="exec-sum-value">〜150万円</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">予算承認・設備投資判断</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">未対応リスク</div><div class="exec-sum-value exec-sum-note">帰宅困難者条例違反・停電時の業務停止・従業員保護義務不履行</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an3">1</div>
-        <div class="action-content">
-          <div class="action-name">非常食・飲料水の3日分備蓄（条例義務）</div>
-          <div class="action-detail">従業員1人あたり：飲料水3L×3日分・非常食3日分。帰宅困難者分を加算して在庫管理体制を構築する。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">非常食・飲料水の3日分備蓄（条例義務）</div>
+          <div class="item-detail">従業員1人あたり：飲料水3L×3日分・非常食3日分。帰宅困難者分を加算して在庫管理体制を構築する。</div>
+          <div class="exec-note">📌 東京都帰宅困難者対策条例で3日分の備蓄が義務。違反は公表・是正指導の対象。</div>
+          <div class="soumu-note">📋 100人規模：飲料水900L（2Lペット×450本）＋食料300食分。保管スペース確保と年1回のローリングストック計画が必要。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">東京都条例</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an3">2</div>
-        <div class="action-content">
-          <div class="action-name">非常用電源・発電機の設置判断（経営投資）</div>
-          <div class="action-detail">72時間対応の発電機またはポータブル電源を確保。電力容量・燃料備蓄・設置場所を計画し導入を決定する。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">非常用電源・発電機の設置判断（経営投資）</div>
+          <div class="item-detail">72時間対応の発電機またはポータブル電源を確保。電力容量・燃料備蓄・設置場所を計画し導入を決定する。</div>
+          <div class="exec-note">📌 停電時に電話・PC・サーバーが止まれば顧客対応・経理処理が全停止。投資回収期間は「1回の停電被害コスト」で試算可能。<br>→ <strong>設備投資判断は経営層の決裁が必要</strong></div>
+          <div class="soumu-note">📋 ガソリン発電機（30〜100万円）かポータブル電源（10〜50万円）を用途別に選定。燃料備蓄量の計算式：消費kW×時間÷燃費（L/h）。</div>
+          <div class="item-tags">
             <span class="tag t-high">コスト：高</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an3">3</div>
-        <div class="action-content">
-          <div class="action-name">防災備品セットの整備・フロア配備</div>
-          <div class="action-detail">ヘルメット・軍手・懐中電灯・防塵マスク・毛布・携帯トイレを人数分用意。部門別・フロア別に配備。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">防災備品セットの整備・フロア配備</div>
+          <div class="item-detail">ヘルメット・軍手・懐中電灯・防塵マスク・毛布・携帯トイレを人数分用意。部門別・フロア別に配備し場所を周知。</div>
+          <div class="exec-note">📌 発災直後に備品がなければ従業員の安全確保ができない。整備状況を役員巡回で確認することを推奨。</div>
+          <div class="soumu-note">📋 100人規模の備品購入費目安：50〜80万円。防災備品専門業者（アスクル防災・ミドリ安全等）で一括調達が効率的。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an3">4</div>
-        <div class="action-content">
-          <div class="action-name">消火設備・スプリンクラーの法定点検実施</div>
-          <div class="action-detail">消火器の設置・有効期限確認、スプリンクラー・自動火災報知機の法定点検（年1回以上）を確実に実施する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">消火設備・スプリンクラーの法定点検実施</div>
+          <div class="item-detail">消火器の設置・有効期限確認、スプリンクラー・自動火災報知機の法定点検（年1回以上）を確実に実施する。</div>
+          <div class="exec-note">📌 消防設備の点検未実施・未報告は消防法違反。立入検査で指摘されると是正命令・公表の対象になる。</div>
+          <div class="soumu-note">📋 消防設備点検業者（防火対象物点検資格者）と年間契約を結ぶことが最も確実。点検結果報告書を3年間保存。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">消防法</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an3">5</div>
-        <div class="action-content">
-          <div class="action-name">備蓄品の在庫管理・ローリングストック体制</div>
-          <div class="action-detail">食料・水の賞味期限を台帳で管理。ローリングストック方式で廃棄コストを最小化。年1回棚卸しを実施。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">備蓄品の在庫管理・ローリングストック体制</div>
+          <div class="item-detail">食料・水の賞味期限を台帳で管理。ローリングストック方式で廃棄コストを最小化。年1回棚卸しを実施。</div>
+          <div class="exec-note">📌 期限切れ備蓄品を保管していても「備蓄あり」とは見なされない。訓練で実際に配布し消費する仕組みが有効。</div>
+          <div class="soumu-note">📋 在庫管理台帳（Excelまたは備蓄管理アプリ）を作成し担当者を固定。9月の防災の日に合わせた棚卸しが定着しやすい。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an3">6</div>
-        <div class="action-content">
-          <div class="action-name">断水時対応トイレ・衛生環境の確保</div>
-          <div class="action-detail">携帯トイレを全員分（3日分×3回/日）確保。女性・障がい者への配慮を含む使用ルールを整備しておく。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">断水時対応トイレ・衛生環境の確保</div>
+          <div class="item-detail">携帯トイレを全員分（3日分×3回/日）確保。女性・障がい者への配慮を含む使用ルールを整備しておく。</div>
+          <div class="exec-note">📌 トイレが使えないと従業員は速やかに帰宅困難になる。衛生問題は二次被害にもつながる。</div>
+          <div class="soumu-note">📋 携帯トイレ数の算出：従業員数×3日×3回。段ボールパーティション（1枚〜2万円）をセットで確保。保管場所も事前に確保。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- PHASE 4 -->
 <div class="phase-card" id="phase4">
-  <div class="phase-header">
-    <div class="phase-color-bar pc4"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi4">📡</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 04 — 重要 ／ IT投資判断が必要</div>
       <div class="phase-title">情報・通信基盤の強化</div>
       <div class="phase-desc">停電・輻輳時でも「情報が届く・つながる」仕組みを構築する。データ消失防止も含む。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt4">3〜6ヶ月以内</span>
-      <span class="phase-cost">想定コスト：〜100万円</span>
+      <span class="phase-progress-mini" id="prog4">0/6 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c4">経営インパクト</div>
-      <div class="sum-value">顧客対応不能・信用損失</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c4">経営層の決定事項</div>
-      <div class="sum-value">IT投資承認・情報発信ポリシー決定</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c4">未対応リスク</div>
-      <div class="sum-note">データ消失・顧客からの信用喪失・復旧コストの膨張</div>
-    </div>
+  <div class="phase-exec-summary show" id="exec-sum4">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">顧客対応不能・信用損失</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">フェーズ想定コスト</div><div class="exec-sum-value">〜100万円</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">IT投資承認・情報発信ポリシー決定</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">未対応リスク</div><div class="exec-sum-value exec-sum-note">データ消失・顧客からの信用喪失・復旧コストの膨張</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an4">1</div>
-        <div class="action-content">
-          <div class="action-name">衛星電話・MCA無線の調達（代替通信手段）</div>
-          <div class="action-detail">輻輳する携帯に依存しない通信手段を確保。本社・工場・拠点間で最低1台以上の衛星電話または無線機を調達。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">衛星電話・MCA無線の調達（代替通信手段）</div>
+          <div class="item-detail">輻輳する携帯に依存しない通信手段を確保。本社・工場・拠点間で最低1台以上の衛星電話または無線機を調達。</div>
+          <div class="exec-note">📌 阪神大震災・東日本大震災でも携帯は数時間不通。衛星電話（イリジウム等）は月額〜1万円程度で維持可能。<br>→ <strong>調達予算の承認は経営層が行う</strong></div>
+          <div class="soumu-note">📋 衛星電話レンタル（月額5,000〜2万円）と購入（30〜60万円）を比較検討。使用訓練を年1回実施し操作習熟を確保。</div>
+          <div class="item-tags">
             <span class="tag t-high">コスト：高</span>
             <span class="tag t-joint">経営承認必要</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an4">2</div>
-        <div class="action-content">
-          <div class="action-name">業務データのクラウドバックアップ体制構築</div>
-          <div class="action-detail">重要データを毎日クラウドに自動バックアップ。RTO・RPOを定義し復旧手順を文書化する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">業務データのクラウドバックアップ体制構築</div>
+          <div class="item-detail">重要データを毎日クラウド（AWS/Azure/Google等）に自動バックアップ。RTO・RPOを定義し復旧手順を文書化する。</div>
+          <div class="exec-note">📌 オフィス全焼・浸水でオンプレサーバーが消失した場合、クラウドバックアップがなければ業務データが永久に失われる。</div>
+          <div class="soumu-note">📋 RTO（目標復旧時間）とRPO（目標復旧時点）を部門別に設定。IT部門が主管だが総務部が要件定義に参加する。月額コスト目安：数千円〜数万円。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務/IT部</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an4">3</div>
-        <div class="action-content">
-          <div class="action-name">テレワーク環境の整備と被災時稼働の検証</div>
-          <div class="action-detail">オフィス被災時に自宅・代替拠点から業務継続できるVPN・クラウド環境を整備。実際に試す訓練も実施する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">テレワーク環境の整備と被災時稼働の検証</div>
+          <div class="item-detail">オフィス被災時に自宅・代替拠点から業務継続できるVPN・クラウド環境を整備。実際に試す訓練も実施する。</div>
+          <div class="exec-note">📌 テレワーク整備はBCPと平時の生産性向上を両立できる最も費用対効果の高い投資の一つ。</div>
+          <div class="soumu-note">📋 全員がリモートで1週間業務継続できるかシミュレーション。VPN・クラウドツール（Microsoft365等）の契約見直しも同時に実施。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-soumu">総務/IT部</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an4">4</div>
-        <div class="action-content">
-          <div class="action-name">ラジオ・J-ALERTなど情報収集手段の整備</div>
-          <div class="action-detail">停電時も使える乾電池式ラジオ・手回しラジオを整備。防災気象情報アプリの一斉設定と情報担当者を指名する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">ラジオ・J-ALERTなど情報収集手段の整備</div>
+          <div class="item-detail">停電時も使える乾電池式ラジオ・手回しラジオを整備。防災気象情報アプリの一斉設定と情報担当者を指名する。</div>
+          <div class="exec-note">📌 正確な情報収集ができない状況での経営判断ミスは企業の信頼を大きく損なう。</div>
+          <div class="soumu-note">📋 ラジオ（5,000〜1万円/台）をフロアごとに設置。Yahoo防災速報・NHKニュースアプリを全員インストール。情報担当は副総務部長が兼任する形が多い。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an4">5</div>
-        <div class="action-content">
-          <div class="action-name">顧客・取引先・金融機関への緊急連絡体制整備</div>
-          <div class="action-detail">主要顧客・仕入先・金融機関への緊急連絡フローと通知タイミング・内容テンプレートを文書化する。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">顧客・取引先・金融機関への緊急連絡体制整備</div>
+          <div class="item-detail">主要顧客・仕入先・金融機関への緊急連絡フロー（担当者・連絡先・通知タイミング・内容テンプレート）を文書化する。</div>
+          <div class="exec-note">📌 取引先への連絡遅れは契約違反・損害賠償リスクになる。「何を・いつ・誰が・どう伝えるか」を事前に決めておくことが必須。</div>
+          <div class="soumu-note">📋 主要取引先TOP20の緊急連絡先一覧を整備。連絡テンプレートを3パターン（軽微被害・中程度・重大被害）作成し金庫に保管。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-joint">経営承認必要</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an4">6</div>
-        <div class="action-content">
-          <div class="action-name">公式SNS・ウェブサイトによる情報発信ポリシー策定</div>
-          <div class="action-detail">被災後の営業状況・復旧見込みをSNS・ホームページで発信する担当者・承認フロー・テンプレートを事前に準備する。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">公式SNS・ウェブサイトによる情報発信ポリシー策定</div>
+          <div class="item-detail">被災後の営業状況・復旧見込みをSNS・ホームページで発信する担当者・承認フロー・テンプレートを事前に準備する。</div>
+          <div class="exec-note">📌 被災後の不適切な情報発信は炎上・信用失墜のリスク。発信内容の最終承認者（代表者または指定役員）を事前に明確にしておく。<br>→ <strong>発信ポリシーは経営層が決定する</strong></div>
+          <div class="soumu-note">📋 発信テンプレートを広報部門と共同作成。「被災直後の第一報→状況確認→復旧目途」の3段階の発信内容を準備。SNSアカウントの緊急時運用権限も確認。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- PHASE 5 -->
 <div class="phase-card" id="phase5">
-  <div class="phase-header">
-    <div class="phase-color-bar pc5"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi5">🔄</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 05 — 経営主導 ／ BCP策定の核心</div>
       <div class="phase-title">事業継続計画（BCP）の策定</div>
       <div class="phase-desc">「被災してもビジネスを止めない」ための計画を体系的に整備する。経営層の関与が最も重要なフェーズ。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt5">6〜12ヶ月以内</span>
-      <span class="phase-cost">想定コスト：〜200万円</span>
+      <span class="phase-progress-mini" id="prog5">0/6 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c5">経営インパクト</div>
-      <div class="sum-value">事業存続・廃業リスク</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c5">経営層の決定事項</div>
-      <div class="sum-value">BCP方針・代替拠点契約・保険見直し・開示</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c5">未対応リスク</div>
-      <div class="sum-note">被災後の廃業・取引先からの契約打ち切り・金融機関からの評価低下</div>
-    </div>
+  <div class="phase-exec-summary show" id="exec-sum5">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">事業存続・廃業リスク</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">フェーズ想定コスト</div><div class="exec-sum-value">〜200万円</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">BCP方針決定・代替拠点契約・保険見直し・ステークホルダー開示</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">未対応リスク</div><div class="exec-sum-value exec-sum-note">被災後の廃業・取引先からの契約打ち切り・金融機関からの評価低下</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an5">1</div>
-        <div class="action-content">
-          <div class="action-name">BIA（業務影響度分析）による重要業務の特定</div>
-          <div class="action-detail">全業務の中から「止められない重要業務」を経営レベルで選定。停止による財務・信用・法令上の影響を定量化する。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">BIA（業務影響度分析）による重要業務の特定</div>
+          <div class="item-detail">全業務の中から「止められない重要業務」を経営レベルで選定。停止による財務・信用・法令上の影響を定量化する。</div>
+          <div class="exec-note">📌 「何を守れば会社が生き残るか」を経営層が決定しない限りBCPは絵に描いた餅になる。BIAは経営層主導で実施する。</div>
+          <div class="soumu-note">📋 BIA調査票を部門ごとに配布・回収・集計し、経営会議で優先業務を決議する。中小企業庁の無料テンプレートを活用可能。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an5">2</div>
-        <div class="action-content">
-          <div class="action-name">BCP文書の策定（内閣府ガイドライン準拠）</div>
-          <div class="action-detail">基本方針・被害想定・対応戦略・資源確保・連絡体制を網羅したBCP文書を作成。代表者の署名を付して正式文書化する。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">BCP文書の策定（内閣府ガイドライン準拠）</div>
+          <div class="item-detail">基本方針・被害想定・対応戦略・資源確保・連絡体制を網羅したBCP文書を作成。代表者の署名を付して正式文書化する。</div>
+          <div class="exec-note">📌 BCP文書は代表者名で発行することで全社への拘束力が生まれる。銀行・大手取引先がBCP有無を与信審査に含める事例が増加中。</div>
+          <div class="soumu-note">📋 内閣府「事業継続ガイドライン」と中小企業庁「中小企業BCP策定運用指針」を参考文書として使用。総務部が事務局として草案作成→経営層が決裁。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-joint">経営承認必要</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an5">3</div>
-        <div class="action-content">
-          <div class="action-name">代替拠点・代替業務手段の確保（経営決断）</div>
-          <div class="action-detail">本社被災時の代替オフィス（コワーキング契約・グループ会社支援協定）を事前に確保する。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">代替拠点・代替業務手段の確保（経営決断）</div>
+          <div class="item-detail">本社被災時の代替オフィス（コワーキング契約・グループ会社支援協定）を事前に確保する。</div>
+          <div class="exec-note">📌 本社が使えない状態で代替拠点の確保交渉を始めても遅い。有事前の契約・協定が生命線。<br>→ <strong>契約・協定の締結は経営層が決裁する</strong></div>
+          <div class="soumu-note">📋 コワーキング候補リスト作成（WeWork・TKP会議室等）→経営層に提案→契約。交通アクセス・収容人数・設備を比較資料にまとめる。</div>
+          <div class="item-tags">
             <span class="tag t-high">コスト：高</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an5">4</div>
-        <div class="action-content">
-          <div class="action-name">サプライチェーンリスク評価と代替調達先確保</div>
-          <div class="action-detail">主要仕入先の被災リスクを評価し、代替サプライヤーを2社以上確保。集中調達リスクを分散する意思決定を行う。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">サプライチェーンリスク評価と代替調達先確保</div>
+          <div class="item-detail">主要仕入先の被災リスクを評価し、代替サプライヤーを2社以上確保。集中調達リスクを分散する意思決定を行う。</div>
+          <div class="exec-note">📌 単一サプライヤーへの集中は取引先の被災で自社業務が即日停止するリスク。調達分散は経営戦略として決断する必要がある。</div>
+          <div class="soumu-note">📋 主要仕入先TOP10を対象にリスク評価（立地・規模・BCP有無）を実施。代替サプライヤー候補リストを購買部門が作成し経営層に提案。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-joint">経営承認必要</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an5">5</div>
-        <div class="action-content">
-          <div class="action-name">災害保険・地震保険の補償内容の見直し</div>
-          <div class="action-detail">財産保険・企業費用保険・利益保険の補償内容を確認。地震免責条項・支払い上限を精査し適切な補償へ見直す。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">災害保険・地震保険の補償内容の見直し</div>
+          <div class="item-detail">財産保険・企業費用保険・利益保険の補償内容を確認。地震免責条項・支払い上限を精査し適切な補償へ見直す。</div>
+          <div class="exec-note">📌 多くの火災保険は「地震火災」を免責としている。地震後の損害は別途地震保険が必要。補償ギャップは経営層が把握・判断する。<br>→ <strong>保険見直しの最終決定は経営層・財務責任者</strong></div>
+          <div class="soumu-note">📋 保険代理店に現行証券の補償内容レビューを依頼（無料）。地震リスク評価レポートを取り寄せ、費用対効果を経営層に報告する。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an5">6</div>
-        <div class="action-content">
-          <div class="action-name">BCPのステークホルダー開示・取引先連携</div>
-          <div class="action-detail">顧客・投資家・金融機関に対してBCP策定状況を開示。主要取引先にもBCP連携（相互支援・情報共有）を働きかける。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">BCPのステークホルダー開示・取引先連携</div>
+          <div class="item-detail">顧客・投資家・金融機関に対してBCP策定状況を開示。主要取引先にもBCP連携（相互支援・情報共有）を働きかける。</div>
+          <div class="exec-note">📌 BCP開示は取引先・金融機関との信頼関係を強化する経営戦略。非財務情報開示の観点からもESG評価に直結する。代表者からの発信が最も効果的。</div>
+          <div class="soumu-note">📋 開示資料は経営層が承認した後、総務部が取引先向けに配布。IRページへの掲載・営業担当者へのトークスクリプト提供も実施。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <!-- PHASE 6 -->
 <div class="phase-card" id="phase6">
-  <div class="phase-header">
-    <div class="phase-color-bar pc6"></div>
+  <div class="phase-header" onclick="togglePhase(this)">
     <div class="phase-icon pi6">♾️</div>
     <div class="phase-meta">
       <div class="phase-num">PHASE 06 — 継続 ／ 年次PDCAサイクル</div>
       <div class="phase-title">継続的改善・PDCA</div>
       <div class="phase-desc">策定した対策を「生きた計画」として維持・進化させる。経営会議への年次報告が核心。</div>
     </div>
-    <div class="phase-badges">
+    <div class="phase-right">
       <span class="phase-timing pt6">年次・定期継続</span>
-      <span class="phase-cost">年間維持コスト：〜50万円</span>
+      <span class="phase-progress-mini" id="prog6">0/5 完了</span>
     </div>
+    <span class="chevron">▼</span>
   </div>
-  <div class="phase-summary">
-    <div class="sum-block">
-      <div class="sum-label c6">経営インパクト</div>
-      <div class="sum-value">対策の実効性維持・法令遵守</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c6">経営層の決定事項</div>
-      <div class="sum-value">年次BCP承認・訓練参加・次年度予算決裁</div>
-    </div>
-    <div class="sum-block">
-      <div class="sum-label c6">停滞リスク</div>
-      <div class="sum-note">経営層が関与しないと現場の防災意識が形骸化する</div>
-    </div>
+  <div class="phase-exec-summary show" id="exec-sum6">
+    <div class="exec-sum-block"><div class="exec-sum-label">経営インパクト</div><div class="exec-sum-value">対策の実効性維持・法令遵守</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">年間維持コスト</div><div class="exec-sum-value">〜50万円/年</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">経営層の決定事項</div><div class="exec-sum-value">年次BCP承認・訓練参加・次年度予算決裁</div></div>
+    <div class="exec-sum-block"><div class="exec-sum-label">停滞リスク</div><div class="exec-sum-value exec-sum-note">経営層が関与しないと現場の防災意識が形骸化する</div></div>
   </div>
   <div class="phase-body">
-    <div class="actions-grid">
-      <div class="action-item">
-        <div class="action-num an6">1</div>
-        <div class="action-content">
-          <div class="action-name">BCPの年次見直しと経営承認・再発行</div>
-          <div class="action-detail">組織変更・業務変化・法改正を反映して毎年BCPを更新。代表者の署名を付して再発行し全社に展開する。</div>
-          <div class="action-tags">
+    <div class="items-grid">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">BCPの年次見直しと経営承認・再発行</div>
+          <div class="item-detail">組織変更・業務変化・法改正を反映して毎年BCPを更新。代表者の署名を付して再発行し全社に展開する。</div>
+          <div class="exec-note">📌 古いBCPは「意味がない」ではなく「有害」になりうる（誤った指揮系統・廃止された手順が記載されたまま）。経営層による年次承認が必須。</div>
+          <div class="soumu-note">📋 年次改訂スケジュール：9月（防災月間）に改訂作業→10月経営会議で承認→11月全社展開。改訂履歴を文書に明記。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-joint">経営承認必要</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an6">2</div>
-        <div class="action-content">
-          <div class="action-name">BCP机上演習・実動訓練の年次実施（経営層参加）</div>
-          <div class="action-detail">年1回以上、具体的シナリオを設定したBCP演習を実施。経営層も参加し、実際の意思決定を体験する。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">BCP机上演習・実動訓練の年次実施（経営層参加）</div>
+          <div class="item-detail">年1回以上、具体的シナリオを設定したBCP演習を実施。経営層も参加し、実際の意思決定を体験する。</div>
+          <div class="exec-note">📌 経営層が訓練に参加しない会社は「いざとなったら役員が動けない会社」。経営層の参加が全社の本気度を決定的に変える。</div>
+          <div class="soumu-note">📋 外部ファシリテーター（民間BCPコンサル）を使った机上演習が最も費用対効果が高い（1回30〜80万円）。演習後の改善アクションリストを作成し翌月に反映。</div>
+          <div class="item-tags">
             <span class="tag t-mid">コスト：中</span>
             <span class="tag t-joint">経営承認必要</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an6">3</div>
-        <div class="action-content">
-          <div class="action-name">防災関連法令・ガイドライン改正の年次確認</div>
-          <div class="action-detail">消防法・建築基準法・労働安全衛生法・東京都条例等の改正を年1回確認し、必要な対応を実施する。</div>
-          <div class="action-tags">
+
+      <div class="item soumu-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">防災関連法令・ガイドライン改正の年次確認</div>
+          <div class="item-detail">消防法・建築基準法・労働安全衛生法・東京都条例等の改正を年1回確認し、必要な対応を実施する。</div>
+          <div class="exec-note">📌 法改正への対応漏れは行政指導・罰則リスクに直結。総務部からの年次報告を経営会議の議題に設定する。</div>
+          <div class="soumu-note">📋 法令改正情報は消防署の定期通知・東京都ウェブサイト・防災コンサルからの情報を総務部が収集・整理して経営会議に報告。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-soumu">総務部主導</span>
             <span class="tag t-law">各種法令</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an6">4</div>
-        <div class="action-content">
-          <div class="action-name">地域・行政との連携強化（協定締結）</div>
-          <div class="action-detail">地元自治体・消防署・地区防災協議会との連携強化。帰宅困難者受け入れ協定・地域防災訓練への参加を進める。</div>
-          <div class="action-tags">
+
+      <div class="item joint-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">地域・行政との連携強化（協定締結）</div>
+          <div class="item-detail">地元自治体・消防署・地区防災協議会との連携強化。帰宅困難者受け入れ協定・地域防災訓練への参加を進める。</div>
+          <div class="exec-note">📌 地域防災協力企業としての認定・表彰は採用ブランディング・行政との関係構築に有効。協定締結は代表者名で行う。</div>
+          <div class="soumu-note">📋 地区防災協議会への参加申請→自治体との協定締結交渉。消防署主催の防災協力事業者登録も検討。総務部が窓口となり、締結時のみ経営層が対応。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-joint">経営承認必要</span>
           </div>
         </div>
       </div>
-      <div class="action-item">
-        <div class="action-num an6">5</div>
-        <div class="action-content">
-          <div class="action-name">防災投資の費用対効果評価と次年度予算決裁</div>
-          <div class="action-detail">当年度の防災対策コストとリスク低減効果を比較評価し、次年度の防災予算を経営判断で決定する。</div>
-          <div class="action-tags">
+
+      <div class="item exec-item">
+        <div class="item-check">✓</div>
+        <div class="item-content">
+          <div class="item-name">防災投資の費用対効果評価と次年度予算決裁</div>
+          <div class="item-detail">当年度の防災対策コストと、リスク低減効果・保険見直し効果を比較評価し、次年度の防災予算を経営判断で決定する。</div>
+          <div class="exec-note">📌 防災投資を「感情論」ではなく「ROI」で評価することで経営会議での承認が通りやすくなる。費用対効果試算は総務部が資料作成→経営層が決裁。</div>
+          <div class="soumu-note">📋 費用対効果試算の基本式：想定損害額×発生確率×リスク低減率 ÷ 投資コスト。数値の根拠は内閣府・東京都の被害想定データを使用。</div>
+          <div class="item-tags">
             <span class="tag t-low">コスト：低</span>
             <span class="tag t-exec">経営層主導</span>
-            <span class="tag t-key">★経営承認</span>
+            <span class="tag t-approval">★経営承認</span>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -1045,7 +1723,14 @@ footer {
     <div class="legend-row"><span class="tag t-exec">経営層主導</span>意思決定・最終承認</div>
     <div class="legend-row"><span class="tag t-soumu">総務部主導</span>実務推進・ベンダー管理</div>
     <div class="legend-row"><span class="tag t-joint">経営承認必要</span>総務部が起案→経営層が決裁</div>
-    <div class="legend-row"><span class="tag t-key">★経営承認</span>必ず経営層の署名・決裁が必要</div>
+    <div class="legend-row"><span class="tag t-approval">★経営承認</span>必ず経営層の署名・決裁が必要</div>
+  </div>
+  <div class="legend-group">
+    <div class="legend-title">使い方</div>
+    <div class="legend-row">👔 経営層ビュー：リスク・投資・法的責任を重点表示</div>
+    <div class="legend-row">📋 総務部ビュー：実施手順・ベンダー情報を重点表示</div>
+    <div class="legend-row">✅ アイテムをクリックして完了チェック（自動保存）</div>
+    <div class="legend-row">🖨️ Ctrl+P で印刷・PDF出力対応</div>
   </div>
 </div>
 
@@ -1067,9 +1752,470 @@ footer {
 </main>
 
 <footer>
-  <p>企業防災ロードマップ｜都市直下型地震対策 — 対象：経営層・総務部 — 中規模企業（50〜300名）標準構成 — 2026年版</p>
+  <p>企業防災ロードマップ｜都市直下型地震対策 — 対象：総務部・経営層 — 中規模企業（50〜300名）標準構成 — 2026年3月版</p>
   <p style="margin-top:4px">※本図解は一般的な参考情報です。実際の対策は専門家・行政機関にご相談のうえ実施してください。</p>
+  <p style="margin-top:12px">
+    <a href="design-notes.html" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;margin-right:8px;">✨ この図解の設計・工夫ポイントを見る →</a>
+    <a href="agent.html" style="color:var(--green);text-decoration:none;border:1px solid var(--green);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(61,220,151,.07);margin-right:8px;">⚡ BCPエージェント（5フェーズ意思決定）→</a>
+    <a href="deadline.html" style="color:var(--gold);text-decoration:none;border:1px solid var(--gold);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(240,180,41,.07);">📅 期限管理 × 予算化ツール →</a>
+  </p>
 </footer>
+
+<script>
+// ======================== VIEW TOGGLE ========================
+function setView(mode) {
+  const body = document.body;
+  const btnExec = document.getElementById('btn-exec');
+  const btnSoumu = document.getElementById('btn-soumu');
+  const audExec = document.getElementById('aud-exec');
+  const audSoumu = document.getElementById('aud-soumu');
+  const hint = document.getElementById('view-hint');
+  const dashboard = document.getElementById('exec-dashboard');
+
+  // Remove all view classes
+  body.classList.remove('exec-view', 'soumu-view');
+
+  // Remove exec-summary show from all
+  document.querySelectorAll('.phase-exec-summary').forEach(el => el.classList.remove('show'));
+
+  // Reset buttons
+  btnExec.classList.remove('active-exec', 'active-soumu');
+  btnSoumu.classList.remove('active-exec', 'active-soumu');
+  audExec.classList.remove('active-exec', 'active-soumu');
+  audSoumu.classList.remove('active-exec', 'active-soumu');
+
+  if (mode === 'exec') {
+    body.classList.add('exec-view');
+    btnExec.classList.add('active-exec');
+    audExec.classList.add('active-exec');
+    hint.textContent = '経営層向け：意思決定・リスク・投資判断を重点表示';
+    dashboard.classList.add('show');
+    document.querySelectorAll('.phase-exec-summary').forEach(el => el.classList.add('show'));
+  } else {
+    body.classList.add('soumu-view');
+    btnSoumu.classList.add('active-soumu');
+    audSoumu.classList.add('active-soumu');
+    hint.textContent = '総務部向け：実施手順・担当者・ベンダー情報を重点表示';
+    dashboard.classList.remove('show');
+  }
+
+  localStorage.setItem('disaster-view-mode', mode);
+}
+
+// ======================== PHASE TOGGLE ========================
+function togglePhase(header) {
+  header.closest('.phase-card').classList.toggle('collapsed');
+}
+
+// ======================== ITEM CHECK ========================
+function toggleItem(item) {
+  item.classList.toggle('done');
+  const check = item.querySelector('.item-check');
+  if (check) check.textContent = item.classList.contains('done') ? '✓' : '';
+  saveState();
+  updateProgress();
+}
+
+// イベントデリゲーション：.phases コンテナで一括管理
+document.querySelector('.phases').addEventListener('click', function(e) {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  toggleItem(item);
+});
+
+// ======================== PROGRESS ========================
+function updateProgress() {
+  const all = document.querySelectorAll('.item');
+  const done = document.querySelectorAll('.item.done');
+  const total = all.length;
+  const doneCount = done.length;
+
+  document.getElementById('done-count').textContent = doneCount;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('prog-fill').style.width = total > 0 ? (doneCount / total * 100) + '%' : '0%';
+
+  for (let p = 1; p <= 6; p++) {
+    const phaseItems = document.querySelectorAll(`#phase${p} .item`);
+    const phaseDone = document.querySelectorAll(`#phase${p} .item.done`).length;
+    const el = document.getElementById(`prog${p}`);
+    if (el) el.textContent = `${phaseDone}/${phaseItems.length} 完了`;
+  }
+}
+
+// ======================== PERSIST ========================
+function saveState() {
+  const state = {};
+  document.querySelectorAll('.item').forEach((item, i) => { state[i] = item.classList.contains('done'); });
+  localStorage.setItem('disaster-roadmap-v2', JSON.stringify(state));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('disaster-roadmap-v2');
+  if (saved) {
+    const state = JSON.parse(saved);
+    document.querySelectorAll('.item').forEach((item, i) => {
+      if (state[i]) {
+        item.classList.add('done');
+        const check = item.querySelector('.item-check');
+        if (check) check.textContent = '✓';
+      }
+    });
+  }
+  const savedView = localStorage.getItem('disaster-view-mode') || 'exec';
+  setView(savedView);
+}
+
+// ======================== SMOOTH SCROLL ========================
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// ======================== NAV TOP POSITION (モバイル対応) ========================
+function adjustNavTop() {
+  const viewBar = document.querySelector('.view-bar');
+  const profileBanner = document.getElementById('profile-banner');
+  const noAgentBanner = document.getElementById('profile-no-agent');
+  const header = document.querySelector('header');
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+  const vbH = viewBar ? viewBar.offsetHeight : 0;
+  const pbH = (profileBanner && profileBanner.classList.contains('visible')) ? profileBanner.offsetHeight : 0;
+  const naH = (noAgentBanner && noAgentBanner.style.display !== 'none') ? noAgentBanner.offsetHeight : 0;
+  const bannerH = Math.max(pbH, naH);
+  const hH = header ? header.offsetHeight : 0;
+  const stickyOffset = vbH + bannerH + hH;
+  nav.style.top = stickyOffset + 'px';
+  // header の sticky top も調整
+  header.style.top = (vbH + bannerH) + 'px';
+}
+window.addEventListener('resize', adjustNavTop);
+adjustNavTop();
+
+// ======================== PROFILE SYNC (エージェント連携) ========================
+function loadSharedProfile() {
+  const raw = localStorage.getItem('bcp-shared-profile');
+  const noAgentEl = document.getElementById('profile-no-agent');
+
+  if (!raw) {
+    if (noAgentEl) noAgentEl.style.display = 'flex';
+    return;
+  }
+  if (noAgentEl) noAgentEl.style.display = 'none';
+
+  let p;
+  try { p = JSON.parse(raw); } catch(e) { return; }
+
+  // バナー表示
+  const banner = document.getElementById('profile-banner');
+  banner.classList.add('visible');
+
+  // チップ生成
+  const scaleLabel = p.employees <= 50 ? '小規模' : p.employees <= 300 ? '中規模' : '大規模';
+  const scoreColor = p.judgeScore >= 70 ? '' : 'score-warn';
+  const chips = [
+    { label: '🏢 ' + (p.company || '貴社'), cls: 'chip-name' },
+    { label: p.industryLabel || p.industry, cls: '' },
+    { label: scaleLabel + '（' + p.employees + '名）', cls: '' },
+    { label: p.locationLabel || p.location, cls: '' },
+    { label: '判定 ' + p.judgeScore + '点 / ' + p.judgeVerdict, cls: 'chip-score ' + scoreColor },
+  ];
+  document.getElementById('profile-chips').innerHTML =
+    chips.map(c => `<span class="profile-chip ${c.cls}">${c.label}</span>`).join('');
+
+  // ヘッダーをパーソナライズ
+  const h1 = document.querySelector('h1');
+  if (h1 && p.company) {
+    h1.innerHTML = `${p.company}<br><span style="font-size:0.7em;font-weight:500;opacity:.75;">企業防災ロードマップ〜最適な備えの順序と優先度〜</span>`;
+  }
+
+  const subtitle = document.querySelector('.subtitle');
+  if (subtitle && p.company) {
+    const scale = p.employees <= 50 ? '小規模' : p.employees <= 300 ? '中規模' : '大規模';
+    subtitle.textContent = `${scale}（${p.employees}名）｜${p.industryLabel || p.industry}｜${p.locationLabel || p.location}`;
+  }
+
+  // エージェント連携バッジを badge-row に追加
+  const badgeRow = document.querySelector('.badge-row');
+  if (badgeRow && !badgeRow.querySelector('.badge-agent')) {
+    const agentBadge = document.createElement('span');
+    agentBadge.className = 'badge badge-agent';
+    agentBadge.textContent = '🔗 エージェント連携中';
+    badgeRow.appendChild(agentBadge);
+  }
+
+  // ヘッダーのstickyトップ位置を再調整
+  adjustNavTop();
+
+  // Top5のCRITICAL項目をハイライト
+  if (p.phase1Top5 && p.urgencyBonus >= 1) {
+    applyAgentPriority(p.phase1Top5);
+  }
+}
+
+function applyAgentPriority(top5) {
+  const criticalNames = top5
+    .filter(i => i.prio && i.prio.includes('CRITICAL'))
+    .map(i => i.name);
+
+  document.querySelectorAll('.item').forEach(item => {
+    const nameEl = item.querySelector('.item-name');
+    if (!nameEl) return;
+    const itemName = nameEl.textContent.trim();
+    // 対策名の部分一致でマッチング（エージェントと ロードマップの表記が異なる場合に対応）
+    const isMatch = criticalNames.some(cn =>
+      itemName.includes(cn.slice(0, 8)) || cn.includes(itemName.slice(0, 8))
+    );
+    if (isMatch) item.setAttribute('data-agent-critical', 'true');
+  });
+  document.querySelector('.phases')?.classList.add('agent-critical');
+}
+
+function clearSharedProfile() {
+  localStorage.removeItem('bcp-shared-profile');
+  // バナーを非表示
+  document.getElementById('profile-banner').classList.remove('visible');
+  const noAgentEl = document.getElementById('profile-no-agent');
+  if (noAgentEl) noAgentEl.style.display = 'flex';
+
+  // ヘッダーをリセット
+  const h1 = document.querySelector('h1');
+  if (h1) h1.innerHTML = '企業防災ロードマップ<br>〜最適な備えの順序と優先度〜';
+  const subtitle = document.querySelector('.subtitle');
+  if (subtitle) subtitle.textContent = '中規模企業（50〜300名）｜BCP策定・防災整備の実行計画図解';
+
+  // エージェントバッジを削除
+  document.querySelector('.badge-agent')?.remove();
+
+  // CRITICAL強調を解除
+  document.querySelector('.phases')?.classList.remove('agent-critical');
+  document.querySelectorAll('[data-agent-critical]').forEach(el => el.removeAttribute('data-agent-critical'));
+}
+
+// ======================== EXPORT ========================
+function toggleRoadmapExport() {
+  const panel   = document.getElementById('rm-exp-panel');
+  const overlay = document.getElementById('rm-exp-overlay');
+  const isOpen  = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    const all  = document.querySelectorAll('.item').length;
+    const done = document.querySelectorAll('.item.done').length;
+    document.getElementById('rm-exp-progress').textContent = `${done} / ${all} 項目完了`;
+    document.getElementById('rm-exp-rate').textContent = all > 0 ? `${Math.round(done/all*100)}%` : '0%';
+  }
+}
+
+function exportRoadmapPDF() {
+  toggleRoadmapExport();
+  // 折りたたみを全て展開してから印刷
+  document.querySelectorAll('.phase-card.collapsed').forEach(c => c.classList.remove('collapsed'));
+  setTimeout(() => window.print(), 200);
+}
+
+function exportRoadmapJSON() {
+  const allItems  = document.querySelectorAll('.item');
+  const allPhases = document.querySelectorAll('.phase-card');
+  const items = [];
+  allPhases.forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    phase.querySelectorAll('.item').forEach(item => {
+      const name   = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const done   = item.classList.contains('done');
+      const tags   = [...item.querySelectorAll('.prio-tag,.cost-tag,.dept-tag')].map(t => t.textContent.trim());
+      items.push({ phase: phaseTitle, name, done, tags });
+    });
+  });
+  const all  = allItems.length;
+  const done = document.querySelectorAll('.item.done').length;
+  const data = {
+    generated: new Date().toISOString(),
+    tool: '企業防災ロードマップ｜都市直下型地震対策',
+    url: 'https://ika-del.github.io/kigyobosai-bcp/',
+    progress: { done, total: all, rate: all > 0 ? (done/all*100).toFixed(1)+'%' : '0%' },
+    items
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  dlBlob(blob, `防災ロードマップ_${dateStr2()}.json`);
+  toggleRoadmapExport();
+}
+
+function exportRoadmapCSV() {
+  const rows = [['フェーズ', '対策アイテム', '完了', 'タグ']];
+  document.querySelectorAll('.phase-card').forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    phase.querySelectorAll('.item').forEach(item => {
+      const name = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const done = item.classList.contains('done') ? '✓' : '';
+      const tags = [...item.querySelectorAll('.prio-tag,.cost-tag,.dept-tag')].map(t => t.textContent.trim()).join(' / ');
+      rows.push([phaseTitle, name, done, tags]);
+    });
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  dlBlob(blob, `防災チェックリスト_${dateStr2()}.csv`);
+  toggleRoadmapExport();
+}
+
+function exportRoadmapText() {
+  const all  = document.querySelectorAll('.item').length;
+  const done = document.querySelectorAll('.item.done').length;
+  const lines = [
+    '■ 企業防災ロードマップ チェックリスト出力',
+    `出力日時: ${new Date().toLocaleString('ja-JP')}`,
+    `進捗: ${done}/${all} 項目完了（${all > 0 ? Math.round(done/all*100) : 0}%）`,
+    ''
+  ];
+  document.querySelectorAll('.phase-card').forEach((phase, pi) => {
+    const phaseTitle = phase.querySelector('.phase-title')?.textContent?.trim() || `Phase ${pi+1}`;
+    lines.push(`【${phaseTitle}】`);
+    phase.querySelectorAll('.item').forEach(item => {
+      const name = item.querySelector('.item-name')?.textContent?.trim() || '';
+      const status = item.classList.contains('done') ? '[✓]' : '[ ]';
+      lines.push(`  ${status} ${name}`);
+    });
+    lines.push('');
+  });
+  lines.push(`参考: https://ika-del.github.io/kigyobosai-bcp/`);
+  navigator.clipboard.writeText(lines.join('\n')).then(() => showRmToast('📋 チェックリストをコピーしました'));
+  toggleRoadmapExport();
+}
+
+function importRoadmapJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try { data = JSON.parse(e.target.result); }
+    catch { return showRmToast('⚠️ 無効なJSONファイルです'); }
+
+    if (!data.items || !Array.isArray(data.items)) {
+      return showRmToast('⚠️ チェックリストデータが見つかりません');
+    }
+
+    // 全アイテムをリセット
+    document.querySelectorAll('.item').forEach(item => {
+      item.classList.remove('done');
+      const check = item.querySelector('.item-check');
+      if (check) check.textContent = '';
+    });
+
+    // 名前で一致させてチェック状態を復元
+    let restored = 0;
+    data.items.forEach(importedItem => {
+      if (!importedItem.done) return;
+      document.querySelectorAll('.item').forEach(domItem => {
+        const nameEl = domItem.querySelector('.item-name');
+        if (!nameEl) return;
+        const domName = nameEl.textContent.trim();
+        // 前方一致（10文字）でマッチング
+        if (domName.slice(0, 10) === importedItem.name.slice(0, 10)) {
+          domItem.classList.add('done');
+          const check = domItem.querySelector('.item-check');
+          if (check) check.textContent = '✓';
+          restored++;
+        }
+      });
+    });
+
+    saveState();
+    updateProgress();
+    toggleRoadmapExport();
+
+    const total = data.items.filter(i => i.done).length;
+    showRmToast(`📂 ${total}項目のチェック状態を復元しました（マッチ: ${restored}件）`);
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function dlBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function dateStr2() {
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+function showRmToast(msg) {
+  const t = document.getElementById('rm-exp-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ======================== INIT ========================
+loadState();
+updateProgress();
+loadSharedProfile();
+// 初期化後にもtop調整
+setTimeout(adjustNavTop, 300);
+</script>
+<!-- ROADMAP EXPORT OVERLAY -->
+<div class="export-overlay" id="rm-exp-overlay" onclick="toggleRoadmapExport()"></div>
+
+<!-- ROADMAP EXPORT PANEL -->
+<div class="export-panel" id="rm-exp-panel" style="width:300px;">
+  <div class="exp-title">インポート</div>
+  <div class="exp-opts">
+    <label class="exp-opt" style="cursor:pointer;" onclick="document.getElementById('rm-import-file').click()">
+      <span class="exp-opt-icon">📂</span>
+      <span>
+        <span class="exp-opt-label">JSONから進捗を復元</span>
+        <span class="exp-opt-desc">保存したチェック状態を読み込んで再開</span>
+      </span>
+    </label>
+    <input type="file" id="rm-import-file" accept=".json" style="display:none" onchange="importRoadmapJSON(event)">
+  </div>
+  <div class="exp-divider" style="height:1px;background:var(--border);margin:10px 0;"></div>
+  <div class="exp-title">エクスポート</div>
+  <div class="exp-progress-line">
+    <span id="rm-exp-progress">—</span>
+    <span id="rm-exp-rate">—</span>
+  </div>
+  <div class="exp-opts">
+    <button class="exp-opt" onclick="exportRoadmapPDF()">
+      <span class="exp-opt-icon">🖨️</span>
+      <span>
+        <span class="exp-opt-label">PDF出力（印刷）</span>
+        <span class="exp-opt-desc">全フェーズを展開して印刷ダイアログを開く</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapJSON()">
+      <span class="exp-opt-icon">⬇️</span>
+      <span>
+        <span class="exp-opt-label">JSONダウンロード</span>
+        <span class="exp-opt-desc">チェック状況・全対策データをJSONで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapCSV()">
+      <span class="exp-opt-icon">📊</span>
+      <span>
+        <span class="exp-opt-label">CSVダウンロード</span>
+        <span class="exp-opt-desc">チェックリストをExcel用CSVで保存</span>
+      </span>
+    </button>
+    <button class="exp-opt" onclick="exportRoadmapText()">
+      <span class="exp-opt-icon">📋</span>
+      <span>
+        <span class="exp-opt-label">テキストコピー</span>
+        <span class="exp-opt-desc">進捗サマリーをクリップボードへコピー</span>
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="exp-toast" id="rm-exp-toast"></div>
 
 </body>
 </html>
