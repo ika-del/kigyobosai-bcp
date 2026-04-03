@@ -232,7 +232,6 @@ body {
   border: 2px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
-  position: relative;
 }
 /* Annotation numbers */
 .ann {
@@ -247,21 +246,25 @@ body {
   vertical-align: middle;
   margin-right: 4px;
 }
+/* Inline layer label strip */
+.layer-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 12px 3px 4px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  color: white;
+  white-space: nowrap;
+}
 .anatomy-top {
-  padding: 18px 22px;
-  display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px 22px;
   background: var(--white);
   border-bottom: 2px dashed rgba(230,57,70,0.3);
-  position: relative;
 }
-.ann-label-top {
-  position: absolute;
-  top: -12px; left: 20px;
-  background: var(--accent);
-  color: white;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 10px; border-radius: 20px;
-  white-space: nowrap;
+.anatomy-top-inner {
+  display: flex; gap: 14px; align-items: flex-start;
 }
 .anat-badge {
   width: 44px; height: 44px;
@@ -291,32 +294,15 @@ body {
   padding: 12px 22px;
   background: #fef2f2;
   font-size: 12px;
-  display: flex; gap: 10px; align-items: flex-start;
   border-bottom: 2px dashed rgba(230,57,70,0.3);
-  position: relative;
 }
-.ann-label-why {
-  position: absolute;
-  top: -12px; right: 20px;
-  background: var(--accent2);
-  color: white;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 10px; border-radius: 20px;
-  white-space: nowrap;
+.anatomy-why-inner {
+  display: flex; gap: 10px; align-items: flex-start;
 }
 .anatomy-actions {
   padding: 16px 22px;
   background: #fafafa;
   border-bottom: 2px dashed rgba(230,57,70,0.3);
-  position: relative;
-}
-.ann-label-actions {
-  position: absolute;
-  top: -12px; left: 20px;
-  background: var(--accent3);
-  color: white;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 10px; border-radius: 20px;
 }
 .anat-action-row {
   display: flex; gap: 8px; flex-wrap: wrap;
@@ -331,17 +317,10 @@ body {
 }
 .anatomy-meta-row {
   padding: 14px 22px;
-  display: flex; gap: 10px;
   background: var(--white);
-  position: relative;
 }
-.ann-label-meta {
-  position: absolute;
-  top: -12px; right: 20px;
-  background: #7c3aed;
-  color: white;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 10px; border-radius: 20px;
+.anatomy-meta-chips {
+  display: flex; gap: 10px;
 }
 .anat-meta-chip {
   flex: 1;
@@ -630,32 +609,36 @@ footer {
 
       <!-- 層① ヘッダー -->
       <div class="anatomy-top">
-        <div class="ann-label-top"><span class="ann">1</span> ヘッダー層：「何を・いつ・いくら」を一目で</div>
-        <div class="anat-badge"><span>1</span>STEP</div>
-        <div class="anat-meta">
-          <div class="anat-pill">⏱ 今すぐ〜1週間以内</div>
-          <div class="anat-title">🆘 まず「命を守る仕組み」を作る</div>
-          <div class="anat-sub">地震が起きた直後に機能する、最低限の安全対策。法律で義務付けられているものが多い。</div>
-        </div>
-        <div class="anat-cost">
-          <div class="anat-cost-label">目安コスト</div>
-          <div class="anat-cost-value">〜30万円</div>
+        <div class="layer-label" style="background:var(--accent)"><span class="ann" style="margin-right:2px">1</span> ヘッダー層：「何を・いつ・いくら」を一目で</div>
+        <div class="anatomy-top-inner">
+          <div class="anat-badge"><span>1</span>STEP</div>
+          <div class="anat-meta">
+            <div class="anat-pill">⏱ 今すぐ〜1週間以内</div>
+            <div class="anat-title">🆘 まず「命を守る仕組み」を作る</div>
+            <div class="anat-sub">地震が起きた直後に機能する、最低限の安全対策。法律で義務付けられているものが多い。</div>
+          </div>
+          <div class="anat-cost">
+            <div class="anat-cost-label">目安コスト</div>
+            <div class="anat-cost-value">〜30万円</div>
+          </div>
         </div>
       </div>
 
       <!-- 層② WHY -->
       <div class="anatomy-why">
-        <div class="ann-label-why"><span class="ann" style="background:var(--accent2)">2</span> WHY層：「なぜやるか」で行動を促す</div>
-        <span style="font-size:18px;">⚠️</span>
-        <div>
-          <strong>なぜ最初にやるの？</strong><br>
-          地震が起きた直後、従業員の命を守れなければ会社も続けられません。「避難経路を知らなかった」という状態は法律違反にもなります。
+        <div class="layer-label" style="background:var(--accent2)"><span class="ann" style="background:rgba(255,255,255,0.3);margin-right:2px">2</span> WHY層：「なぜやるか」で行動を促す</div>
+        <div class="anatomy-why-inner">
+          <span style="font-size:18px;">⚠️</span>
+          <div>
+            <strong>なぜ最初にやるの？</strong><br>
+            地震が起きた直後、従業員の命を守れなければ会社も続けられません。「避難経路を知らなかった」という状態は法律違反にもなります。
+          </div>
         </div>
       </div>
 
       <!-- 層③ アクション -->
       <div class="anatomy-actions">
-        <div class="ann-label-actions"><span class="ann" style="background:var(--accent3)">3</span> アクション層：絵文字＋平易な言葉でやることを列挙</div>
+        <div class="layer-label" style="background:var(--accent3)"><span class="ann" style="background:rgba(255,255,255,0.3);margin-right:2px">3</span> アクション層：絵文字＋平易な言葉でやることを列挙</div>
         <div class="anat-action-row">
           <div class="anat-action-chip">🚪 避難経路・避難場所を確認して掲示する</div>
           <div class="anat-action-chip">📱 安否確認システムを導入して訓練する</div>
@@ -666,10 +649,12 @@ footer {
 
       <!-- 層④ メタ情報 -->
       <div class="anatomy-meta-row">
-        <div class="ann-label-meta"><span class="ann" style="background:#7c3aed">4</span> 責任層：誰が・いくら・いつを分担表示</div>
-        <div class="anat-meta-chip"><div class="anat-meta-chip-label">👔 経営層</div>予算を承認する</div>
-        <div class="anat-meta-chip"><div class="anat-meta-chip-label">📋 総務部</div>全項目を実施・届出</div>
-        <div class="anat-meta-chip"><div class="anat-meta-chip-label">💰 費用</div>〜30万円</div>
+        <div class="layer-label" style="background:#7c3aed"><span class="ann" style="background:rgba(255,255,255,0.3);margin-right:2px">4</span> 責任層：誰が・いくら・いつを分担表示</div>
+        <div class="anatomy-meta-chips">
+          <div class="anat-meta-chip"><div class="anat-meta-chip-label">👔 経営層</div>予算を承認する</div>
+          <div class="anat-meta-chip"><div class="anat-meta-chip-label">📋 総務部</div>全項目を実施・届出</div>
+          <div class="anat-meta-chip"><div class="anat-meta-chip-label">💰 費用</div>〜30万円</div>
+        </div>
       </div>
 
     </div>
