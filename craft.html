@@ -32,10 +32,14 @@ body {
 }
 
 /* ======================== MASTHEAD ======================== */
-.masthead {
+.masthead-outer {
   background: var(--ink);
+}
+.masthead {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
   color: var(--white);
-  padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 440px;
@@ -523,7 +527,7 @@ footer {
 
 /* ======================== RESPONSIVE ======================== */
 @media (max-width: 900px) {
-  .masthead { grid-template-columns: 1fr; }
+  .masthead { grid-template-columns: 1fr; padding: 0 16px; }
   .masthead-right { display: none; }
   .philosophy-grid { grid-template-columns: 1fr; }
   .vs-grid { grid-template-columns: 1fr; }
@@ -544,6 +548,7 @@ footer {
 <body>
 
 <!-- MASTHEAD -->
+<div class="masthead-outer">
 <div class="masthead">
   <div class="masthead-left">
     <div>
@@ -575,6 +580,7 @@ footer {
     </p>
     <p class="masthead-quote-attr">— 本図解の制作方針より</p>
   </div>
+</div>
 </div>
 
 <div class="page">
